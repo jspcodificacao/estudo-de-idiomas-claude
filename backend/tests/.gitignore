@@ -1,0 +1,7 @@
+# Pytest cache
+__pycache__/
+.pytest_cache/
+
+# Coverage reports
+.coverage
+htmlcov/
