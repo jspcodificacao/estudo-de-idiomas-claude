@@ -59,7 +59,7 @@ describe('App Component', () => {
     )
 
     expect(screen.getByText('Estudo de Idiomas')).toBeInTheDocument()
-    expect(screen.getByText('Gerencie sua plataforma de aprendizado de idiomas')).toBeInTheDocument()
+    expect(screen.getByText('Pratique e aprenda novos idiomas de forma interativa')).toBeInTheDocument()
   })
 
   it('deve renderizar PromptsPage na rota /editar-prompts', async () => {
@@ -122,9 +122,99 @@ describe('App Component', () => {
     expect(appWrapper).toHaveClass('bg-gradient-to-br')
   })
 
+  it('deve renderizar PraticaTraducao na rota /pratica-traducao', async () => {
+    render(
+      <MemoryRouter initialEntries={['/pratica-traducao']}>
+        <App />
+      </MemoryRouter>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Prática de Tradução')).toBeInTheDocument()
+    })
+  })
+
+  it('deve renderizar PraticaAudicao na rota /pratica-audicao', async () => {
+    render(
+      <MemoryRouter initialEntries={['/pratica-audicao']}>
+        <App />
+      </MemoryRouter>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Prática de Audição')).toBeInTheDocument()
+    })
+  })
+
+  it('deve renderizar PraticaPronuncia na rota /pratica-pronuncia', async () => {
+    render(
+      <MemoryRouter initialEntries={['/pratica-pronuncia']}>
+        <App />
+      </MemoryRouter>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Prática de Pronúncia')).toBeInTheDocument()
+    })
+  })
+
+  it('deve renderizar PraticaDialogo na rota /pratica-dialogo', async () => {
+    render(
+      <MemoryRouter initialEntries={['/pratica-dialogo']}>
+        <App />
+      </MemoryRouter>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Prática de Diálogo')).toBeInTheDocument()
+    })
+  })
+
+  it('deve renderizar PraticaNumeros na rota /pratica-numeros', async () => {
+    render(
+      <MemoryRouter initialEntries={['/pratica-numeros']}>
+        <App />
+      </MemoryRouter>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Prática de Números')).toBeInTheDocument()
+    })
+  })
+
+  it('deve renderizar PraticaSubstantivos na rota /pratica-substantivos', async () => {
+    render(
+      <MemoryRouter initialEntries={['/pratica-substantivos']}>
+        <App />
+      </MemoryRouter>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Prática de Substantivos')).toBeInTheDocument()
+    })
+  })
+
+  it('deve ter o gradiente de fundo da aplicação', () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>
+    )
+
+    const appWrapper = container.querySelector('.min-h-screen')
+    expect(appWrapper).toBeInTheDocument()
+    expect(appWrapper).toHaveClass('bg-gradient-to-br')
+  })
+
   it('deve ter todas as rotas definidas', () => {
     const routes = [
       '/',
+      '/pratica-traducao',
+      '/pratica-audicao',
+      '/pratica-pronuncia',
+      '/pratica-dialogo',
+      '/pratica-numeros',
+      '/pratica-substantivos',
       '/editar-prompts',
       '/mudar-base-conhecimento',
       '/navegar-historico',

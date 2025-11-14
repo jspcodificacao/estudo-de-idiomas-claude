@@ -21,10 +21,60 @@ describe('Home Component', () => {
       </BrowserRouter>
     )
 
-    expect(screen.getByText('Gerencie sua plataforma de aprendizado de idiomas')).toBeInTheDocument()
+    expect(screen.getByText('Pratique e aprenda novos idiomas de forma interativa')).toBeInTheDocument()
   })
 
-  it('deve renderizar os 4 cards de funcionalidades', () => {
+  it('deve renderizar o título da seção de práticas', () => {
+    render(
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    )
+
+    expect(screen.getByText('Práticas Interativas')).toBeInTheDocument()
+  })
+
+  it('deve renderizar o título da seção de manutenção', () => {
+    render(
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    )
+
+    expect(screen.getByText('Configurações e Manutenção')).toBeInTheDocument()
+  })
+
+  it('deve renderizar as 6 práticas', () => {
+    render(
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    )
+
+    expect(screen.getByText('Prática de Tradução')).toBeInTheDocument()
+    expect(screen.getByText('Prática de Audição')).toBeInTheDocument()
+    expect(screen.getByText('Prática de Pronúncia')).toBeInTheDocument()
+    expect(screen.getByText('Prática de Diálogo')).toBeInTheDocument()
+    expect(screen.getByText('Prática de Números')).toBeInTheDocument()
+    expect(screen.getByText('Prática de Substantivos')).toBeInTheDocument()
+  })
+
+  it('deve renderizar as descrições das práticas', () => {
+    render(
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    )
+
+    expect(screen.getByText('Pratique traduzindo textos entre idiomas')).toBeInTheDocument()
+    expect(screen.getByText('Aprimore sua compreensão auditiva')).toBeInTheDocument()
+    expect(screen.getByText('Melhore sua pronúncia e sotaque')).toBeInTheDocument()
+    expect(screen.getByText('Pratique conversações naturais')).toBeInTheDocument()
+    expect(screen.getByText('Aprenda números e quantidades')).toBeInTheDocument()
+    expect(screen.getByText('Domine substantivos e vocabulário')).toBeInTheDocument()
+  })
+
+  it('deve renderizar as 4 funcionalidades de manutenção', () => {
     render(
       <BrowserRouter>
         <Home />
@@ -37,7 +87,7 @@ describe('Home Component', () => {
     expect(screen.getByText('Editar Frases do Diálogo')).toBeInTheDocument()
   })
 
-  it('deve renderizar as descrições dos cards', () => {
+  it('deve renderizar as descrições das funcionalidades de manutenção', () => {
     render(
       <BrowserRouter>
         <Home />
@@ -50,20 +100,7 @@ describe('Home Component', () => {
     expect(screen.getByText('Configurar frases de saudação e despedida')).toBeInTheDocument()
   })
 
-  it('deve renderizar os ícones dos cards', () => {
-    render(
-      <BrowserRouter>
-        <Home />
-      </BrowserRouter>
-    )
-
-    expect(screen.getByText('📝')).toBeInTheDocument()
-    expect(screen.getByText('📚')).toBeInTheDocument()
-    expect(screen.getByText('📊')).toBeInTheDocument()
-    expect(screen.getByText('💬')).toBeInTheDocument()
-  })
-
-  it('deve ter links funcionais para cada funcionalidade', () => {
+  it('deve ter 10 links no total (6 práticas + 4 manutenção)', () => {
     render(
       <BrowserRouter>
         <Home />
@@ -71,12 +108,39 @@ describe('Home Component', () => {
     )
 
     const links = screen.getAllByRole('link')
-    expect(links).toHaveLength(4)
+    expect(links).toHaveLength(10)
+  })
 
-    expect(links[0]).toHaveAttribute('href', '/editar-prompts')
-    expect(links[1]).toHaveAttribute('href', '/mudar-base-conhecimento')
-    expect(links[2]).toHaveAttribute('href', '/navegar-historico')
-    expect(links[3]).toHaveAttribute('href', '/editar-frases-dialogo')
+  it('deve ter links funcionais para as práticas', () => {
+    render(
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    )
+
+    const links = screen.getAllByRole('link')
+
+    expect(links[0]).toHaveAttribute('href', '/pratica-traducao')
+    expect(links[1]).toHaveAttribute('href', '/pratica-audicao')
+    expect(links[2]).toHaveAttribute('href', '/pratica-pronuncia')
+    expect(links[3]).toHaveAttribute('href', '/pratica-dialogo')
+    expect(links[4]).toHaveAttribute('href', '/pratica-numeros')
+    expect(links[5]).toHaveAttribute('href', '/pratica-substantivos')
+  })
+
+  it('deve ter links funcionais para as funcionalidades de manutenção', () => {
+    render(
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    )
+
+    const links = screen.getAllByRole('link')
+
+    expect(links[6]).toHaveAttribute('href', '/editar-prompts')
+    expect(links[7]).toHaveAttribute('href', '/mudar-base-conhecimento')
+    expect(links[8]).toHaveAttribute('href', '/navegar-historico')
+    expect(links[9]).toHaveAttribute('href', '/editar-frases-dialogo')
   })
 
   it('deve renderizar o footer com versão', () => {
@@ -89,15 +153,14 @@ describe('Home Component', () => {
     expect(screen.getByText('Aplicação de Estudo de Idiomas v1.0.0')).toBeInTheDocument()
   })
 
-  it('deve ter a estrutura de container e grid', () => {
+  it('deve ter a estrutura de seções separadas', () => {
     const { container } = render(
       <BrowserRouter>
         <Home />
       </BrowserRouter>
     )
 
-    const gridElement = container.querySelector('.grid')
-    expect(gridElement).toBeInTheDocument()
-    expect(gridElement).toHaveClass('grid-cols-1')
+    const sections = container.querySelectorAll('section')
+    expect(sections).toHaveLength(2) // Seção de práticas e seção de manutenção
   })
 })
