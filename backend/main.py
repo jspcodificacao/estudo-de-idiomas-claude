@@ -13,7 +13,8 @@ from models import (
     ConhecimentoIdioma,
     BasePrompts,
     BaseHistoricoPratica,
-    BaseFrasesDialogo
+    BaseFrasesDialogo,
+    Exercicio
 )
 from validator import ValidadorJSON
 
@@ -46,12 +47,17 @@ async def root():
     return {
         "mensagem": "API de Estudo de Idiomas",
         "versao": "1.0.0",
-        "endpoints": [
-            "/api/base_de_conhecimento",
-            "/api/prompts",
-            "/api/historico_de_pratica",
-            "/api/frases_do_dialogo"
-        ]
+        "endpoints": {
+            "GET": [
+                "/api/base_de_conhecimento",
+                "/api/prompts",
+                "/api/historico_de_pratica",
+                "/api/frases_do_dialogo"
+            ],
+            "POST": [
+                "/api/historico_de_pratica - Inserir novo exercício"
+            ]
+        }
     }
 
 
@@ -118,6 +124,31 @@ async def obter_historico_pratica():
         return BaseHistoricoPratica(exercicios=[])
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=f"Erro de validação: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+
+
+@app.post("/api/historico_de_pratica", response_model=BaseHistoricoPratica, status_code=201)
+async def inserir_exercicio(exercicio: Exercicio):
+    """
+    Endpoint para inserir um novo exercício no histórico de prática.
+
+    Args:
+        exercicio: Dados do exercício a ser inserido
+
+    Returns:
+        Objeto BaseHistoricoPratica atualizado
+
+    Raises:
+        HTTPException: Se houver erro na validação ou salvamento do exercício
+    """
+    try:
+        historico_atualizado = validador.adicionar_exercicio(exercicio)
+        return historico_atualizado
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=f"Erro de validação: {str(e)}")
+    except IOError as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao salvar exercício: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
 

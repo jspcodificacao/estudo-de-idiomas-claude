@@ -10,7 +10,8 @@ from models import (
     BasePrompts,
     BaseHistoricoPratica,
     BaseFrasesDialogo,
-    ConhecimentoIdioma
+    ConhecimentoIdioma,
+    Exercicio
 )
 
 
@@ -47,6 +48,25 @@ class ValidadorJSON:
 
         with open(caminho_completo, 'r', encoding='utf-8') as f:
             return json.load(f)
+
+    def _salvar_json(self, nome_arquivo: str, dados: Union[dict, list]) -> None:
+        """
+        Salva dados em um arquivo JSON.
+
+        Args:
+            nome_arquivo: Nome do arquivo JSON a ser salvo
+            dados: Dados a serem salvos (dict ou list)
+
+        Raises:
+            IOError: Se houver erro ao escrever o arquivo
+        """
+        caminho_completo = self.base_path / nome_arquivo
+
+        # Criar diretório se não existir
+        caminho_completo.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(caminho_completo, 'w', encoding='utf-8') as f:
+            json.dump(dados, f, ensure_ascii=False, indent=2, default=str)
 
     def validar_conhecimento_idiomas(self) -> List[ConhecimentoIdioma]:
         """
@@ -103,6 +123,35 @@ class ValidadorJSON:
         """
         dados = self._carregar_json("[BASE] Frases do Diálogo.json")
         return BaseFrasesDialogo(**dados)
+
+    def adicionar_exercicio(self, exercicio: Exercicio) -> BaseHistoricoPratica:
+        """
+        Adiciona um novo exercício ao histórico de prática.
+
+        Args:
+            exercicio: Objeto Exercicio a ser adicionado
+
+        Returns:
+            Objeto BaseHistoricoPratica atualizado
+
+        Raises:
+            ValidationError: Se a validação do exercício falhar
+            IOError: Se houver erro ao salvar o arquivo
+        """
+        # Tentar carregar histórico existente, ou criar novo se não existir
+        try:
+            historico = self.validar_historico_pratica()
+        except FileNotFoundError:
+            historico = BaseHistoricoPratica(exercicios=[])
+
+        # Adicionar novo exercício
+        historico.exercicios.append(exercicio)
+
+        # Salvar histórico atualizado
+        dados = {"exercicios": [ex.model_dump(mode='json') for ex in historico.exercicios]}
+        self._salvar_json("[BASE] Histórico de Prática.json", dados)
+
+        return historico
 
     def validar_todos(self) -> dict:
         """

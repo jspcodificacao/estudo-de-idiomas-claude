@@ -95,6 +95,12 @@ def exercicio_audicao_valido():
 
 
 @pytest.fixture
+def exercicio_valido(exercicio_traducao_valido):
+    """Fixture com exercício válido (alias para exercicio_traducao_valido)."""
+    return exercicio_traducao_valido
+
+
+@pytest.fixture
 def historico_pratica_valido(exercicio_traducao_valido):
     """Fixture com histórico de prática válido."""
     return {

@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 from pydantic import ValidationError
 from main import app
-from models import ConhecimentoIdioma, BasePrompts, BaseHistoricoPratica, BaseFrasesDialogo
+from models import ConhecimentoIdioma, BasePrompts, BaseHistoricoPratica, BaseFrasesDialogo, Exercicio
 
 
 @pytest.fixture
@@ -180,3 +180,55 @@ class TestFrasesDialogoEndpoint:
 
             response = client.get("/api/frases_do_dialogo")
             assert response.status_code == 422
+
+
+class TestPostHistoricoPraticaEndpoint:
+    """Testes para o endpoint POST /api/historico_de_pratica."""
+
+    def test_post_exercicio_sucesso(self, client, exercicio_valido):
+        """Testa inserção bem-sucedida de um exercício."""
+        with patch('main.validador.adicionar_exercicio') as mock_adicionar:
+            exercicio = Exercicio(**exercicio_valido)
+            historico_atualizado = BaseHistoricoPratica(exercicios=[exercicio])
+            mock_adicionar.return_value = historico_atualizado
+
+            response = client.post("/api/historico_de_pratica", json=exercicio_valido)
+            assert response.status_code == 201
+            data = response.json()
+            assert len(data["exercicios"]) == 1
+            assert data["exercicios"][0]["tipo_pratica"] == exercicio_valido["tipo_pratica"]
+
+    def test_post_exercicio_dados_invalidos(self, client):
+        """Testa erro 422 quando dados do exercício são inválidos."""
+        exercicio_invalido = {
+            "data_hora": "2025-11-14T10:00:00",
+            "exercicio_id": "invalid-uuid",  # UUID inválido
+            "conhecimento_id": "também-invalido",
+            "idioma": "alemao",
+            "tipo_pratica": "traducao"
+            # Faltando resultado_exercicio
+        }
+
+        response = client.post("/api/historico_de_pratica", json=exercicio_invalido)
+        assert response.status_code == 422
+
+    def test_post_exercicio_erro_salvamento(self, client, exercicio_valido):
+        """Testa erro 500 quando há erro ao salvar o exercício."""
+        with patch('main.validador.adicionar_exercicio') as mock_adicionar:
+            mock_adicionar.side_effect = IOError("Erro ao salvar arquivo")
+
+            response = client.post("/api/historico_de_pratica", json=exercicio_valido)
+            assert response.status_code == 500
+            assert "salvar" in response.json()["detail"].lower()
+
+    def test_post_exercicio_erro_validacao(self, client, exercicio_valido):
+        """Testa erro 422 quando validação do exercício falha."""
+        with patch('main.validador.adicionar_exercicio') as mock_adicionar:
+            mock_adicionar.side_effect = ValidationError.from_exception_data(
+                "Exercicio",
+                [{"type": "missing", "loc": ("resultado_exercicio",), "msg": "Field required", "input": {}}]
+            )
+
+            response = client.post("/api/historico_de_pratica", json=exercicio_valido)
+            assert response.status_code == 422
+            assert "validação" in response.json()["detail"].lower()
