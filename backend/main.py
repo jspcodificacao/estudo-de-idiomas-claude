@@ -150,5 +150,5 @@ if __name__ == "__main__":
     # Obter porta da variável de ambiente
     port = int(os.getenv("BACKEND_PORT", 3010))
 
-    print(f"Iniciando servidor na porta {port}...")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    print(f"Iniciando servidor em http://localhost:{port}")
+    uvicorn.run(app, host="localhost", port=port)

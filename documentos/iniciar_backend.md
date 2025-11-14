@@ -124,18 +124,18 @@ python main.py
 ### Opção 2: Usando Uvicorn (recomendado para desenvolvimento)
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 3010
+uvicorn main:app --reload --host localhost --port 3010
 ```
 
 **Parâmetros:**
 - `--reload`: Recarrega automaticamente quando o código é alterado
-- `--host 0.0.0.0`: Permite conexões de qualquer endereço
+- `--host localhost`: Servidor acessível apenas localmente (mais seguro)
 - `--port 3010`: Define a porta (use o valor de BACKEND_PORT)
 
 ### Opção 3: Usando variável de ambiente
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port $BACKEND_PORT
+uvicorn main:app --reload --host localhost --port $BACKEND_PORT
 ```
 
 ## Passo 6: Verificar se o Servidor Está Funcionando
@@ -143,7 +143,8 @@ uvicorn main:app --reload --host 0.0.0.0 --port $BACKEND_PORT
 Após iniciar o servidor, você verá uma mensagem similar a:
 
 ```
-INFO:     Uvicorn running on http://0.0.0.0:3010 (Press CTRL+C to quit)
+Iniciando servidor em http://localhost:3010
+INFO:     Uvicorn running on http://127.0.0.1:3010 (Press CTRL+C to quit)
 INFO:     Started reloader process [xxxxx] using WatchFiles
 INFO:     Started server process [xxxxx]
 INFO:     Waiting for application startup.
@@ -237,9 +238,12 @@ pip install -r requirements.txt
 python validator.py
 
 # Iniciar servidor (desenvolvimento)
-uvicorn main:app --reload --host 0.0.0.0 --port 3010
+uvicorn main:app --reload --host localhost --port 3010
 
-# Iniciar servidor (produção)
+# Iniciar servidor (produção - acesso apenas local)
+uvicorn main:app --host localhost --port 3010 --workers 4
+
+# Iniciar servidor (produção - acesso externo)
 uvicorn main:app --host 0.0.0.0 --port 3010 --workers 4
 
 # Ver logs detalhados
