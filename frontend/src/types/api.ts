@@ -85,3 +85,53 @@ export interface Exercicio {
 export interface BaseHistoricoPratica {
   exercicios: Exercicio[]
 }
+
+// Prompts Types
+
+export interface PromptItem {
+  prompt_id: string
+  descricao: string
+  template: string
+  parametros: string[]
+  resposta_estruturada: boolean
+  estrutura_esperada?: Record<string, any>
+  ultima_edicao: string
+}
+
+export interface BasePrompts {
+  descricao: string
+  data_atualizacao: string
+  marcador_de_paramentros: string
+  prompts: PromptItem[]
+}
+
+// Knowledge Base Types
+
+export enum IdiomaConhecimentoEnum {
+  Alemao = "alemao",
+  Ingles = "ingles"
+}
+
+export enum TipoConhecimentoEnum {
+  Frase = "frase",
+  Palavra = "palavra"
+}
+
+export interface ConhecimentoIdioma {
+  conhecimento_id: string
+  data_hora: string
+  idioma: IdiomaConhecimentoEnum
+  tipo_conhecimento: TipoConhecimentoEnum
+  texto_original: string
+  transcricao_ipa?: string
+  traducao: string
+  divisao_silabica?: string
+}
+
+// Dialog Phrases Types
+
+export interface FrasesDialogo {
+  saudacao: string
+  despedida: string
+  intermediarias: string[]
+}

@@ -12,6 +12,21 @@ describe('App Component', () => {
     vi.clearAllMocks()
     // Mock padrão para o histórico vazio
     vi.mocked(api.getHistoricoPratica).mockResolvedValue({ exercicios: [] })
+    // Mock padrão para prompts vazios
+    vi.mocked(api.getPrompts).mockResolvedValue({
+      descricao: 'Test prompts',
+      data_atualizacao: '2025-11-14T00:00:00Z',
+      marcador_de_paramentros: '{{param}}',
+      prompts: []
+    })
+    // Mock padrão para base de conhecimento vazia
+    vi.mocked(api.getBaseConhecimento).mockResolvedValue([])
+    // Mock padrão para frases do diálogo
+    vi.mocked(api.getFrasesDialogo).mockResolvedValue({
+      saudacao: 'Test greeting',
+      despedida: 'Test farewell',
+      intermediarias: ['Test phrase']
+    })
   })
 
   it('deve renderizar a página Home na rota raiz', () => {
@@ -25,26 +40,28 @@ describe('App Component', () => {
     expect(screen.getByText('Gerencie sua plataforma de aprendizado de idiomas')).toBeInTheDocument()
   })
 
-  it('deve renderizar NotImplemented na rota /editar-prompts', () => {
+  it('deve renderizar PromptsPage na rota /editar-prompts', async () => {
     render(
       <MemoryRouter initialEntries={['/editar-prompts']}>
         <App />
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Funcionalidade não implementada')).toBeInTheDocument()
-    expect(screen.getByText('Editar Prompts')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('Editar Prompts')).toBeInTheDocument()
+    })
   })
 
-  it('deve renderizar NotImplemented na rota /mudar-base-conhecimento', () => {
+  it('deve renderizar KnowledgeBasePage na rota /mudar-base-conhecimento', async () => {
     render(
       <MemoryRouter initialEntries={['/mudar-base-conhecimento']}>
         <App />
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Funcionalidade não implementada')).toBeInTheDocument()
-    expect(screen.getByText('Mudar Base de Conhecimento')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('Base de Conhecimento')).toBeInTheDocument()
+    })
   })
 
   it('deve renderizar HistoricoPage na rota /navegar-historico', async () => {
@@ -59,15 +76,16 @@ describe('App Component', () => {
     })
   })
 
-  it('deve renderizar NotImplemented na rota /editar-frases-dialogo', () => {
+  it('deve renderizar DialogPhrasesPage na rota /editar-frases-dialogo', async () => {
     render(
       <MemoryRouter initialEntries={['/editar-frases-dialogo']}>
         <App />
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Funcionalidade não implementada')).toBeInTheDocument()
-    expect(screen.getByText('Editar Frases do Diálogo')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('Frases do Diálogo')).toBeInTheDocument()
+    })
   })
 
   it('deve ter o gradiente de fundo da aplicação', () => {
