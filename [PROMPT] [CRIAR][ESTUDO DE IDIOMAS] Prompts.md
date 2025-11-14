@@ -19,6 +19,8 @@ Inclua a variável BACKEND_PORT=3010 em .env.
 
 # Tarefa do usuário: Mover manualmente a base de dados para a pasta /public
 
+---
+
 # PROMPT01: Crie um código Python para validar arquivos JSON contra os schemas fornecidos.
 Crie modelos Pydantic 2. Use a pasta /backend. 
 
@@ -63,12 +65,20 @@ ler e validar /public/[BASE] Frases do diálogo.json
 
 # PROMPT03: Crie casos de testes para a validação dos JSON e para os endpoints do servidor da aplicação.
 
+---
+
 # PROMPT04: Crie um documento chamado iniciar_e_testar_backend.md e coloque as instruções nele.
+
+---
 
 # PROMPT05: Crie na pasta /frontend uma aplicação web usando Vite, TypeScript e Tailwindcss.
 Esta aplicação é composta de uma tela inicial em que há links para as funcionalidades "Editar Prompts", "Mudar Base de Conhecimento", "Navegar no Histórico" e "Editar Frases do Diálogo". Quando usuário seleciona uma funcionalidade, aparece a mensagem "Funcionalidade não implementada". Configure a porta do frontend de acordo com a variável de ambiente FRONTEND_PORT
 
+---
+
 # Crie casos de teste para o frontend. Gere um documento instruindo como executar os testes.
+
+---
 
 # PROMPT06: Implemente a funcionadade "Navegar no Histórico".
 
