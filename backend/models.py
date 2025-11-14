@@ -4,7 +4,7 @@ Modelos Pydantic 2 para validação dos arquivos JSON da aplicação de estudo d
 from datetime import datetime
 from typing import List, Optional, Any
 from enum import Enum
-from pydantic import BaseModel, Field, UUID4
+from pydantic import BaseModel, Field, UUID4, RootModel
 
 
 # ========== Conhecimento de Idiomas ==========
@@ -31,9 +31,9 @@ class ConhecimentoIdioma(BaseModel):
     divisao_silabica: Optional[str] = Field(None, description="A divisão silábica opcional do texto original")
 
 
-class BaseConhecimentoIdiomas(BaseModel):
+class BaseConhecimentoIdiomas(RootModel[List[ConhecimentoIdioma]]):
     """Modelo para a base de conhecimento de idiomas (array de registros)."""
-    __root__: List[ConhecimentoIdioma]
+    pass
 
 
 # ========== Prompts ==========
@@ -142,9 +142,8 @@ class BaseHistoricoPratica(BaseModel):
 
 class BaseFrasesDialogo(BaseModel):
     """Modelo para as frases do diálogo."""
+    model_config = {"extra": "forbid"}
+
     saudacao: str = Field(..., description="A frase de saudação")
     despedida: str = Field(..., description="A frase de despedida")
     intermediarias: List[str] = Field(..., min_length=1, description="Lista de frases intermediárias")
-
-    class Config:
-        extra = "forbid"

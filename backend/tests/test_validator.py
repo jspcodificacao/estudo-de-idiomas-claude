@@ -76,10 +76,10 @@ class TestValidadorJSON:
         validador = ValidadorJSON(base_path=str(temp_json_files))
         resultados = validador.validar_todos()
 
-        assert resultados["conhecimento_idiomas"]["status"] == "✓ Válido"
-        assert resultados["prompts"]["status"] == "✓ Válido"
-        assert resultados["historico_pratica"]["status"] == "✓ Válido"
-        assert resultados["frases_dialogo"]["status"] == "✓ Válido"
+        assert resultados["conhecimento_idiomas"]["status"] == "[OK] Valido"
+        assert resultados["prompts"]["status"] == "[OK] Valido"
+        assert resultados["historico_pratica"]["status"] == "[OK] Valido"
+        assert resultados["frases_dialogo"]["status"] == "[OK] Valido"
 
     def test_validar_todos_com_historico_ausente(self, temp_json_files):
         """Testa validação quando histórico não existe (é opcional)."""
@@ -90,7 +90,7 @@ class TestValidadorJSON:
         validador = ValidadorJSON(base_path=str(temp_json_files))
         resultados = validador.validar_todos()
 
-        assert "⚠" in resultados["historico_pratica"]["status"]
+        assert "AVISO" in resultados["historico_pratica"]["status"]
         assert "opcional" in resultados["historico_pratica"]["status"]
 
     def test_validar_todos_com_erros(self, tmp_path):
@@ -103,5 +103,5 @@ class TestValidadorJSON:
         validador = ValidadorJSON(base_path=str(tmp_path))
         resultados = validador.validar_todos()
 
-        assert resultados["conhecimento_idiomas"]["status"] == "✗ Inválido"
+        assert resultados["conhecimento_idiomas"]["status"] == "[ERRO] Invalido"
         assert "erro" in resultados["conhecimento_idiomas"]

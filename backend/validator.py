@@ -117,12 +117,12 @@ class ValidadorJSON:
         try:
             conhecimentos = self.validar_conhecimento_idiomas()
             resultados["conhecimento_idiomas"] = {
-                "status": "✓ Válido",
+                "status": "[OK] Valido",
                 "total_registros": len(conhecimentos)
             }
         except (ValidationError, FileNotFoundError, json.JSONDecodeError) as e:
             resultados["conhecimento_idiomas"] = {
-                "status": "✗ Inválido",
+                "status": "[ERRO] Invalido",
                 "erro": str(e)
             }
 
@@ -130,12 +130,12 @@ class ValidadorJSON:
         try:
             prompts = self.validar_prompts()
             resultados["prompts"] = {
-                "status": "✓ Válido",
+                "status": "[OK] Valido",
                 "total_prompts": len(prompts.prompts)
             }
         except (ValidationError, FileNotFoundError, json.JSONDecodeError) as e:
             resultados["prompts"] = {
-                "status": "✗ Inválido",
+                "status": "[ERRO] Invalido",
                 "erro": str(e)
             }
 
@@ -143,17 +143,17 @@ class ValidadorJSON:
         try:
             historico = self.validar_historico_pratica()
             resultados["historico_pratica"] = {
-                "status": "✓ Válido",
+                "status": "[OK] Valido",
                 "total_exercicios": len(historico.exercicios)
             }
         except FileNotFoundError:
             resultados["historico_pratica"] = {
-                "status": "⚠ Arquivo não encontrado (opcional)",
-                "info": "Será criado um novo histórico"
+                "status": "[AVISO] Arquivo nao encontrado (opcional)",
+                "info": "Sera criado um novo historico"
             }
         except (ValidationError, json.JSONDecodeError) as e:
             resultados["historico_pratica"] = {
-                "status": "✗ Inválido",
+                "status": "[ERRO] Invalido",
                 "erro": str(e)
             }
 
@@ -161,12 +161,12 @@ class ValidadorJSON:
         try:
             frases = self.validar_frases_dialogo()
             resultados["frases_dialogo"] = {
-                "status": "✓ Válido",
+                "status": "[OK] Valido",
                 "total_intermediarias": len(frases.intermediarias)
             }
         except (ValidationError, FileNotFoundError, json.JSONDecodeError) as e:
             resultados["frases_dialogo"] = {
-                "status": "✗ Inválido",
+                "status": "[ERRO] Invalido",
                 "erro": str(e)
             }
 
