@@ -4,7 +4,13 @@
       "Bash(git init:*)",
       "Bash(mkdir:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(python test_fix.py:*)",
+      "Bash(python validator.py:*)",
+      "Bash(git rm:*)",
+      "Bash(pytest:*)",
+      "Bash(npm install)",
+      "Bash(npm run test:coverage:*)"
     ],
     "deny": [],
     "ask": []

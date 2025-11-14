@@ -67,24 +67,24 @@ ler e validar /public/[BASE] Frases do diálogo.json
 
 ---
 
-# PROMPT04: Crie um documento chamado iniciar_e_testar_backend.md e coloque as instruções nele.
+# PROMPT04: Crie os documentos chamados iniciar_backend.md e testar_backend.md e coloque as instruções neles.
 
 ---
 
 # PROMPT05: Crie na pasta /frontend uma aplicação web usando Vite, TypeScript e Tailwindcss.
-Esta aplicação é composta de uma tela inicial em que há links para as funcionalidades "Editar Prompts", "Mudar Base de Conhecimento", "Navegar no Histórico" e "Editar Frases do Diálogo". Quando usuário seleciona uma funcionalidade, aparece a mensagem "Funcionalidade não implementada". Configure a porta do frontend de acordo com a variável de ambiente FRONTEND_PORT
+Esta aplicação é composta de uma tela inicial em que há links para as funcionalidades "Editar Prompts", "Mudar Base de Conhecimento", "Navegar no Histórico" e "Editar Frases do Diálogo". Quando usuário seleciona uma funcionalidade, aparece a mensagem "Funcionalidade não implementada". Configure a porta do frontend de acordo com a variável de ambiente FRONTEND_PORT.
 
 ---
 
-# Crie casos de teste para o frontend. Gere um documento instruindo como executar os testes.
+# PROMPT06: Crie casos de testes para o frontend.
 
 ---
 
-# PROMPT06: Implemente a funcionadade "Navegar no Histórico".
+# PROMPT07: Crie os documentos chamados iniciar_frontend.md e testar_frontend.md e coloque as instruções neles.
 
+---
 
-  - /frontend/README.md
+# PROMPT08: Implemente a funcionadade "Navegar no Histórico".
 
-> Configure a porta do frontend de acordo com a variável de ambiente FRONTEND_PORT
+---
 
-● Read(frontend\vite.config.ts)
