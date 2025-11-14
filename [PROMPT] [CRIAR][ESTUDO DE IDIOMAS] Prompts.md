@@ -19,7 +19,8 @@ Inclua a variável BACKEND_PORT=3010 em .env.
 
 # Tarefa do usuário: Mover manualmente a base de dados para a pasta /public
 
-# PROMPT01: Crie um código Python para validar arquivos JSON contra os schemas fornecidos. Crie modelos Pydantic 2. Use a pasta /backend. 
+# PROMPT01: Crie um código Python para validar arquivos JSON contra os schemas fornecidos.
+Crie modelos Pydantic 2. Use a pasta /backend. 
 
 ## Arquivos JSON
 Todos os dados e schemas da aplicação ficam na pasta /public E JÁ ESTÃO PREENCHIDOS. *Não os modifique*.
