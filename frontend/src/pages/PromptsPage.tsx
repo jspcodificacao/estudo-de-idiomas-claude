@@ -1,36 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getPrompts, ApiError } from '../services/api'
+import { useData } from '../contexts/DataContext'
 import type { BasePrompts, PromptItem } from '../types/api'
 
 function PromptsPage() {
+  const { prompts, loading: dataLoading, errors: dataErrors } = useData()
   const [promptsData, setPromptsData] = useState<BasePrompts | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [editingPromptId, setEditingPromptId] = useState<string | null>(null)
   const [editedPrompt, setEditedPrompt] = useState<PromptItem | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  useEffect(() => {
-    async function carregarPrompts() {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await getPrompts()
-        setPromptsData(data)
-      } catch (err) {
-        if (err instanceof ApiError) {
-          setError(`Erro ao carregar prompts: ${err.message}`)
-        } else {
-          setError('Erro desconhecido ao carregar prompts')
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
+  const loading = dataLoading.prompts
+  const error = dataErrors.prompts
 
-    carregarPrompts()
-  }, [])
+  // Use prompts from context if local state is null
+  const displayData = promptsData || prompts
 
   const handleEdit = (prompt: PromptItem) => {
     setEditingPromptId(prompt.prompt_id)
@@ -45,12 +29,12 @@ function PromptsPage() {
   }
 
   const handleSave = () => {
-    if (editedPrompt && promptsData) {
-      const updatedPrompts = promptsData.prompts.map(p =>
+    if (editedPrompt && displayData) {
+      const updatedPrompts = displayData.prompts.map(p =>
         p.prompt_id === editedPrompt.prompt_id ? editedPrompt : p
       )
       setPromptsData({
-        ...promptsData,
+        ...displayData,
         prompts: updatedPrompts,
         data_atualizacao: new Date().toISOString()
       })
@@ -124,7 +108,7 @@ function PromptsPage() {
     )
   }
 
-  if (!promptsData) {
+  if (!displayData) {
     return null
   }
 
@@ -143,19 +127,19 @@ function PromptsPage() {
             Editar Prompts
           </h1>
           <p className="text-gray-600">
-            {promptsData.descricao}
+            {displayData.descricao}
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            Última atualização: {formatarData(promptsData.data_atualizacao)}
+            Última atualização: {formatarData(displayData.data_atualizacao)}
           </p>
           <p className="text-sm text-gray-500">
-            Marcador de parâmetros: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{promptsData.marcador_de_paramentros}</span>
+            Marcador de parâmetros: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{displayData.marcador_de_paramentros}</span>
           </p>
         </div>
 
         {/* Prompts List */}
         <div className="space-y-6">
-          {promptsData.prompts.map((prompt) => (
+          {displayData.prompts.map((prompt) => (
             <div
               key={prompt.prompt_id}
               className="bg-white rounded-xl shadow-md p-6"

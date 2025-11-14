@@ -1,40 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getFrasesDialogo, ApiError } from '../services/api'
+import { useData } from '../contexts/DataContext'
 import type { FrasesDialogo } from '../types/api'
 
 function DialogPhrasesPage() {
+  const { frasesDialogo, loading: dataLoading, errors: dataErrors } = useData()
   const [frasesData, setFrasesData] = useState<FrasesDialogo | null>(null)
   const [editedFrases, setEditedFrases] = useState<FrasesDialogo | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  useEffect(() => {
-    async function carregarFrases() {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await getFrasesDialogo()
-        setFrasesData(data)
-      } catch (err) {
-        if (err instanceof ApiError) {
-          setError(`Erro ao carregar frases do diálogo: ${err.message}`)
-        } else {
-          setError('Erro desconhecido ao carregar frases do diálogo')
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
+  const loading = dataLoading.frasesDialogo
+  const error = dataErrors.frasesDialogo
 
-    carregarFrases()
-  }, [])
+  // Use frasesDialogo from context if local state is null
+  const displayData = frasesData || frasesDialogo
 
   const handleEdit = () => {
-    if (frasesData) {
-      setEditedFrases({ ...frasesData })
+    if (displayData) {
+      setEditedFrases({ ...displayData })
       setIsEditing(true)
       setHasUnsavedChanges(false)
     }
@@ -140,13 +124,13 @@ function DialogPhrasesPage() {
     )
   }
 
-  if (!frasesData) {
+  if (!displayData) {
     return null
   }
 
-  const displayData = isEditing ? editedFrases : frasesData
+  const currentData = isEditing ? editedFrases : displayData
 
-  if (!displayData) {
+  if (!currentData) {
     return null
   }
 
@@ -200,14 +184,14 @@ function DialogPhrasesPage() {
               <input
                 id="saudacao"
                 type="text"
-                value={displayData.saudacao}
+                value={currentData.saudacao}
                 onChange={(e) => handleFieldChange('saudacao', e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Digite a frase de saudação"
               />
             ) : (
               <div className="px-4 py-3 bg-gray-50 rounded-lg">
-                <p className="text-lg text-gray-900">{displayData.saudacao}</p>
+                <p className="text-lg text-gray-900">{currentData.saudacao}</p>
               </div>
             )}
           </div>
@@ -221,14 +205,14 @@ function DialogPhrasesPage() {
               <input
                 id="despedida"
                 type="text"
-                value={displayData.despedida}
+                value={currentData.despedida}
                 onChange={(e) => handleFieldChange('despedida', e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Digite a frase de despedida"
               />
             ) : (
               <div className="px-4 py-3 bg-gray-50 rounded-lg">
-                <p className="text-lg text-gray-900">{displayData.despedida}</p>
+                <p className="text-lg text-gray-900">{currentData.despedida}</p>
               </div>
             )}
           </div>
@@ -249,7 +233,7 @@ function DialogPhrasesPage() {
               )}
             </div>
             <div className="space-y-3">
-              {displayData.intermediarias.map((frase, index) => (
+              {currentData.intermediarias.map((frase, index) => (
                 <div key={index} className="flex gap-2">
                   {isEditing ? (
                     <>
@@ -260,7 +244,7 @@ function DialogPhrasesPage() {
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder={`Frase intermediária ${index + 1}`}
                       />
-                      {displayData.intermediarias.length > 1 && (
+                      {currentData.intermediarias.length > 1 && (
                         <button
                           onClick={() => handleRemoveIntermediaria(index)}
                           className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"

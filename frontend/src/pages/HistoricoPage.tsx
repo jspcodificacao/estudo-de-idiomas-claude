@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getHistoricoPratica, ApiError } from '../services/api'
+import { useData } from '../contexts/DataContext'
 import { IdiomaEnum, TipoPraticaEnum, type Exercicio } from '../types/api'
 
 // Funções auxiliares para obter labels e ícones
@@ -37,33 +37,14 @@ function getIdiomaColor(idioma: IdiomaEnum): string {
 }
 
 function HistoricoPage() {
-  const [exercicios, setExercicios] = useState<Exercicio[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { historico, loading: dataLoading, errors: dataErrors } = useData()
   const [filtroIdioma, setFiltroIdioma] = useState<IdiomaEnum | 'todos'>('todos')
   const [filtroTipo, setFiltroTipo] = useState<TipoPraticaEnum | 'todos'>('todos')
   const [ordenacao, setOrdenacao] = useState<'recente' | 'antigo'>('recente')
 
-  useEffect(() => {
-    async function carregarHistorico() {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await getHistoricoPratica()
-        setExercicios(data.exercicios)
-      } catch (err) {
-        if (err instanceof ApiError) {
-          setError(`Erro ao carregar histórico: ${err.message}`)
-        } else {
-          setError('Erro desconhecido ao carregar histórico')
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    carregarHistorico()
-  }, [])
+  const loading = dataLoading.historico
+  const error = dataErrors.historico
+  const exercicios = historico?.exercicios || []
 
   // Filtrar e ordenar exercícios
   const exerciciosFiltrados = exercicios

@@ -1,38 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getBaseConhecimento, ApiError } from '../services/api'
+import { useData } from '../contexts/DataContext'
 import type { ConhecimentoIdioma, IdiomaConhecimentoEnum, TipoConhecimentoEnum } from '../types/api'
 
 function KnowledgeBasePage() {
-  const [conhecimentos, setConhecimentos] = useState<ConhecimentoIdioma[]>([])
+  const { baseConhecimento, loading: dataLoading, errors: dataErrors } = useData()
   const [filteredConhecimentos, setFilteredConhecimentos] = useState<ConhecimentoIdioma[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedIdioma, setSelectedIdioma] = useState<IdiomaConhecimentoEnum | 'todos'>('todos')
   const [selectedTipo, setSelectedTipo] = useState<TipoConhecimentoEnum | 'todos'>('todos')
 
-  useEffect(() => {
-    async function carregarConhecimentos() {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await getBaseConhecimento()
-        setConhecimentos(data)
-        setFilteredConhecimentos(data)
-      } catch (err) {
-        if (err instanceof ApiError) {
-          setError(`Erro ao carregar base de conhecimento: ${err.message}`)
-        } else {
-          setError('Erro desconhecido ao carregar base de conhecimento')
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    carregarConhecimentos()
-  }, [])
+  const loading = dataLoading.baseConhecimento
+  const error = dataErrors.baseConhecimento
+  const conhecimentos = baseConhecimento || []
 
   useEffect(() => {
     let filtered = conhecimentos
