@@ -3,11 +3,17 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import PromptsPage from './PromptsPage'
-import * as api from '../services/api'
+import * as DataContext from '../contexts/DataContext'
 import type { BasePrompts } from '../types/api'
 
-// Mock do módulo de API
-vi.mock('../services/api')
+// Mock do DataContext
+vi.mock('../contexts/DataContext', async () => {
+  const actual = await vi.importActual('../contexts/DataContext')
+  return {
+    ...actual,
+    useData: vi.fn()
+  }
+})
 
 const mockPrompts: BasePrompts = {
   descricao: 'Uma coleção de prompts para tarefas de geração e manipulação de texto.',
@@ -39,6 +45,33 @@ const mockPrompts: BasePrompts = {
   ]
 }
 
+// Helper function to create mock data context
+function createMockDataContext(prompts: BasePrompts | null = mockPrompts, loading = false, error: string | null = null) {
+  return {
+    historico: { exercicios: [] },
+    prompts,
+    baseConhecimento: [],
+    frasesDialogo: { saudacao: '', despedida: '', intermediarias: [] },
+    loading: {
+      historico: false,
+      prompts: loading,
+      baseConhecimento: false,
+      frasesDialogo: false
+    },
+    errors: {
+      historico: null,
+      prompts: error,
+      baseConhecimento: null,
+      frasesDialogo: null
+    },
+    refreshHistorico: vi.fn(),
+    refreshPrompts: vi.fn(),
+    refreshBaseConhecimento: vi.fn(),
+    refreshFrasesDialogo: vi.fn(),
+    refreshAll: vi.fn()
+  }
+}
+
 function renderPromptsPage() {
   return render(
     <BrowserRouter>
@@ -50,10 +83,12 @@ function renderPromptsPage() {
 describe('PromptsPage Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Mock padrão para useData
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
   })
 
   it('deve exibir estado de carregamento inicialmente', () => {
-    vi.mocked(api.getPrompts).mockImplementation(() => new Promise(() => {}))
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(null, true))
 
     renderPromptsPage()
 
@@ -61,7 +96,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve carregar e exibir os prompts', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderPromptsPage()
 
@@ -75,8 +110,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve exibir mensagem de erro quando falha ao carregar', async () => {
-    const error = new api.ApiError('Erro de rede')
-    vi.mocked(api.getPrompts).mockRejectedValueOnce(error)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(null, false, 'Erro ao carregar prompts: Erro de rede'))
 
     renderPromptsPage()
 
@@ -88,7 +122,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve exibir detalhes do prompt corretamente', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderPromptsPage()
 
@@ -107,7 +141,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve ativar modo de edição ao clicar em Editar', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderPromptsPage()
@@ -125,7 +159,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve permitir editar a descrição do prompt', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderPromptsPage()
@@ -150,7 +184,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve permitir editar o template do prompt', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderPromptsPage()
@@ -174,7 +208,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve permitir editar parâmetros do prompt', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderPromptsPage()
@@ -198,7 +232,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve permitir alternar resposta estruturada', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderPromptsPage()
@@ -222,7 +256,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve salvar alterações e sair do modo de edição', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderPromptsPage()
@@ -253,7 +287,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve cancelar edição e descartar alterações', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderPromptsPage()
@@ -288,7 +322,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve exibir marcador de parâmetros', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderPromptsPage()
 
@@ -301,7 +335,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve formatar a data de atualização corretamente', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderPromptsPage()
 
@@ -313,7 +347,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve ter link para voltar à página inicial', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderPromptsPage()
 
@@ -327,7 +361,7 @@ describe('PromptsPage Component', () => {
   })
 
   it('deve exibir indicador de resposta estruturada', async () => {
-    vi.mocked(api.getPrompts).mockResolvedValueOnce(mockPrompts)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderPromptsPage()
 

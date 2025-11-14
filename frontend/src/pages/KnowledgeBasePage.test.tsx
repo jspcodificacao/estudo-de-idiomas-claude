@@ -3,12 +3,18 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import KnowledgeBasePage from './KnowledgeBasePage'
-import * as api from '../services/api'
+import * as DataContext from '../contexts/DataContext'
 import type { ConhecimentoIdioma } from '../types/api'
 import { IdiomaConhecimentoEnum, TipoConhecimentoEnum } from '../types/api'
 
-// Mock do módulo de API
-vi.mock('../services/api')
+// Mock do DataContext
+vi.mock('../contexts/DataContext', async () => {
+  const actual = await vi.importActual('../contexts/DataContext')
+  return {
+    ...actual,
+    useData: vi.fn()
+  }
+})
 
 const mockConhecimentos: ConhecimentoIdioma[] = [
   {
@@ -43,6 +49,33 @@ const mockConhecimentos: ConhecimentoIdioma[] = [
   }
 ]
 
+// Helper function to create mock data context
+function createMockDataContext(baseConhecimento: ConhecimentoIdioma[] | null = mockConhecimentos, loading = false, error: string | null = null) {
+  return {
+    historico: { exercicios: [] },
+    prompts: { descricao: '', data_atualizacao: '', marcador_de_paramentros: '', prompts: [] },
+    baseConhecimento,
+    frasesDialogo: { saudacao: '', despedida: '', intermediarias: [] },
+    loading: {
+      historico: false,
+      prompts: false,
+      baseConhecimento: loading,
+      frasesDialogo: false
+    },
+    errors: {
+      historico: null,
+      prompts: null,
+      baseConhecimento: error,
+      frasesDialogo: null
+    },
+    refreshHistorico: vi.fn(),
+    refreshPrompts: vi.fn(),
+    refreshBaseConhecimento: vi.fn(),
+    refreshFrasesDialogo: vi.fn(),
+    refreshAll: vi.fn()
+  }
+}
+
 function renderKnowledgeBasePage() {
   return render(
     <BrowserRouter>
@@ -54,10 +87,12 @@ function renderKnowledgeBasePage() {
 describe('KnowledgeBasePage Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Mock padrão para useData
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
   })
 
   it('deve exibir estado de carregamento inicialmente', () => {
-    vi.mocked(api.getBaseConhecimento).mockImplementation(() => new Promise(() => {}))
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(null, true))
 
     renderKnowledgeBasePage()
 
@@ -65,7 +100,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve carregar e exibir os conhecimentos', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderKnowledgeBasePage()
 
@@ -79,8 +114,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve exibir mensagem de erro quando falha ao carregar', async () => {
-    const error = new api.ApiError('Erro de rede')
-    vi.mocked(api.getBaseConhecimento).mockRejectedValueOnce(error)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(null, false, 'Erro ao carregar base de conhecimento: Erro de rede'))
 
     renderKnowledgeBasePage()
 
@@ -92,7 +126,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve exibir contador de registros', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderKnowledgeBasePage()
 
@@ -104,7 +138,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve filtrar por idioma alemão', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()
@@ -126,7 +160,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve filtrar por idioma inglês', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()
@@ -148,7 +182,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve filtrar por tipo frase', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()
@@ -170,7 +204,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve filtrar por tipo palavra', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()
@@ -192,7 +226,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve buscar por texto original', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()
@@ -214,7 +248,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve buscar por tradução', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()
@@ -236,7 +270,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve buscar por transcrição IPA', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()
@@ -258,7 +292,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve combinar filtros de idioma e tipo', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()
@@ -283,7 +317,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve exibir mensagem quando nenhum registro é encontrado', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()
@@ -301,7 +335,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve exibir informações detalhadas do conhecimento', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderKnowledgeBasePage()
 
@@ -317,7 +351,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve exibir tags de idioma e tipo', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderKnowledgeBasePage()
 
@@ -337,7 +371,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve ter link para voltar à página inicial', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderKnowledgeBasePage()
 
@@ -351,7 +385,7 @@ describe('KnowledgeBasePage Component', () => {
   })
 
   it('deve resetar filtros ao selecionar "Todos"', async () => {
-    vi.mocked(api.getBaseConhecimento).mockResolvedValueOnce(mockConhecimentos)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderKnowledgeBasePage()

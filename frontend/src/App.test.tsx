@@ -2,30 +2,52 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from './App'
-import * as api from './services/api'
+import * as DataContext from './contexts/DataContext'
 
-// Mock do módulo de API
-vi.mock('./services/api')
+// Mock do DataContext
+vi.mock('./contexts/DataContext', async () => {
+  const actual = await vi.importActual('./contexts/DataContext')
+  return {
+    ...actual,
+    useData: vi.fn()
+  }
+})
 
 describe('App Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Mock padrão para o histórico vazio
-    vi.mocked(api.getHistoricoPratica).mockResolvedValue({ exercicios: [] })
-    // Mock padrão para prompts vazios
-    vi.mocked(api.getPrompts).mockResolvedValue({
-      descricao: 'Test prompts',
-      data_atualizacao: '2025-11-14T00:00:00Z',
-      marcador_de_paramentros: '{{param}}',
-      prompts: []
-    })
-    // Mock padrão para base de conhecimento vazia
-    vi.mocked(api.getBaseConhecimento).mockResolvedValue([])
-    // Mock padrão para frases do diálogo
-    vi.mocked(api.getFrasesDialogo).mockResolvedValue({
-      saudacao: 'Test greeting',
-      despedida: 'Test farewell',
-      intermediarias: ['Test phrase']
+    // Mock padrão para useData
+    vi.mocked(DataContext.useData).mockReturnValue({
+      historico: { exercicios: [] },
+      prompts: {
+        descricao: 'Test prompts',
+        data_atualizacao: '2025-11-14T00:00:00Z',
+        marcador_de_paramentros: '{{param}}',
+        prompts: []
+      },
+      baseConhecimento: [],
+      frasesDialogo: {
+        saudacao: 'Test greeting',
+        despedida: 'Test farewell',
+        intermediarias: ['Test phrase']
+      },
+      loading: {
+        historico: false,
+        prompts: false,
+        baseConhecimento: false,
+        frasesDialogo: false
+      },
+      errors: {
+        historico: null,
+        prompts: null,
+        baseConhecimento: null,
+        frasesDialogo: null
+      },
+      refreshHistorico: vi.fn(),
+      refreshPrompts: vi.fn(),
+      refreshBaseConhecimento: vi.fn(),
+      refreshFrasesDialogo: vi.fn(),
+      refreshAll: vi.fn()
     })
   })
 

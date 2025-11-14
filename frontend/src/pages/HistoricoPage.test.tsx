@@ -3,12 +3,18 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import HistoricoPage from './HistoricoPage'
-import * as api from '../services/api'
+import * as DataContext from '../contexts/DataContext'
 import { IdiomaEnum, TipoPraticaEnum } from '../types/api'
 import type { BaseHistoricoPratica } from '../types/api'
 
-// Mock do módulo de API
-vi.mock('../services/api')
+// Mock do DataContext
+vi.mock('../contexts/DataContext', async () => {
+  const actual = await vi.importActual('../contexts/DataContext')
+  return {
+    ...actual,
+    useData: vi.fn()
+  }
+})
 
 const mockHistorico: BaseHistoricoPratica = {
   exercicios: [
@@ -54,6 +60,33 @@ const mockHistorico: BaseHistoricoPratica = {
   ]
 }
 
+// Helper function to create mock data context
+function createMockDataContext(historico: BaseHistoricoPratica | null = mockHistorico, loading = false, error: string | null = null) {
+  return {
+    historico,
+    prompts: { descricao: '', data_atualizacao: '', marcador_de_paramentros: '', prompts: [] },
+    baseConhecimento: [],
+    frasesDialogo: { saudacao: '', despedida: '', intermediarias: [] },
+    loading: {
+      historico: loading,
+      prompts: false,
+      baseConhecimento: false,
+      frasesDialogo: false
+    },
+    errors: {
+      historico: error,
+      prompts: null,
+      baseConhecimento: null,
+      frasesDialogo: null
+    },
+    refreshHistorico: vi.fn(),
+    refreshPrompts: vi.fn(),
+    refreshBaseConhecimento: vi.fn(),
+    refreshFrasesDialogo: vi.fn(),
+    refreshAll: vi.fn()
+  }
+}
+
 function renderHistoricoPage() {
   return render(
     <BrowserRouter>
@@ -65,10 +98,12 @@ function renderHistoricoPage() {
 describe('HistoricoPage Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Mock padrão para useData
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext({ exercicios: [] }))
   })
 
   it('deve exibir estado de carregamento inicialmente', () => {
-    vi.mocked(api.getHistoricoPratica).mockImplementation(() => new Promise(() => {}))
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(null, true))
 
     renderHistoricoPage()
 
@@ -76,7 +111,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve carregar e exibir o histórico de exercícios', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderHistoricoPage()
 
@@ -91,8 +126,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve exibir mensagem de erro quando falha ao carregar', async () => {
-    const error = new api.ApiError('Erro de rede')
-    vi.mocked(api.getHistoricoPratica).mockRejectedValueOnce(error)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(null, false, 'Erro ao carregar histórico: Erro de rede'))
 
     renderHistoricoPage()
 
@@ -105,7 +139,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve ter filtro por idioma funcional', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderHistoricoPage()
 
@@ -126,7 +160,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve ter filtro por tipo de exercício funcional', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderHistoricoPage()
 
@@ -147,7 +181,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve ordenar exercícios por data (mais antigo primeiro)', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderHistoricoPage()
@@ -165,7 +199,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve ter controle de ordenação funcional', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderHistoricoPage()
 
@@ -185,7 +219,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve exibir o resultado correto para exercícios de tradução', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderHistoricoPage()
 
@@ -197,7 +231,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve exibir o resultado correto para exercícios de audição', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderHistoricoPage()
 
@@ -209,7 +243,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve ter link para voltar à página inicial', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderHistoricoPage()
 
@@ -223,7 +257,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve formatar a data corretamente', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderHistoricoPage()
 
@@ -237,7 +271,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve exibir badges de idiomas com cores diferentes', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderHistoricoPage()
 
@@ -270,7 +304,7 @@ describe('HistoricoPage Component', () => {
       ]
     }
 
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoDialogo)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(historicoDialogo))
 
     renderHistoricoPage()
 
@@ -304,7 +338,7 @@ describe('HistoricoPage Component', () => {
       ]
     }
 
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoPronunciaNumeros)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(historicoPronunciaNumeros))
 
     renderHistoricoPage()
 
@@ -338,7 +372,7 @@ describe('HistoricoPage Component', () => {
       ]
     }
 
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoPronunciaNumeros)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(historicoPronunciaNumeros))
 
     renderHistoricoPage()
 
@@ -368,7 +402,7 @@ describe('HistoricoPage Component', () => {
       ]
     }
 
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoPronuncia)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(historicoPronuncia))
 
     renderHistoricoPage()
 
@@ -398,7 +432,7 @@ describe('HistoricoPage Component', () => {
       ]
     }
 
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoPronuncia)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(historicoPronuncia))
 
     renderHistoricoPage()
 
@@ -428,7 +462,7 @@ describe('HistoricoPage Component', () => {
       ]
     }
 
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoAudicao)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(historicoAudicao))
 
     renderHistoricoPage()
 
@@ -458,7 +492,7 @@ describe('HistoricoPage Component', () => {
       ]
     }
 
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoTraducao)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(historicoTraducao))
 
     renderHistoricoPage()
 
@@ -488,7 +522,7 @@ describe('HistoricoPage Component', () => {
       ]
     }
 
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoTraducao)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(historicoTraducao))
 
     renderHistoricoPage()
 
@@ -500,7 +534,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve aplicar filtro por idioma corretamente', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderHistoricoPage()
@@ -523,7 +557,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve aplicar filtro por tipo de exercício corretamente', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderHistoricoPage()
@@ -543,7 +577,7 @@ describe('HistoricoPage Component', () => {
   })
 
   it('deve exibir mensagem quando não há exercícios após filtrar', async () => {
-    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderHistoricoPage()

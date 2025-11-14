@@ -3,11 +3,17 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import DialogPhrasesPage from './DialogPhrasesPage'
-import * as api from '../services/api'
+import * as DataContext from '../contexts/DataContext'
 import type { FrasesDialogo } from '../types/api'
 
-// Mock do módulo de API
-vi.mock('../services/api')
+// Mock do DataContext
+vi.mock('../contexts/DataContext', async () => {
+  const actual = await vi.importActual('../contexts/DataContext')
+  return {
+    ...actual,
+    useData: vi.fn()
+  }
+})
 
 const mockFrases: FrasesDialogo = {
   saudacao: 'Hallo',
@@ -17,6 +23,33 @@ const mockFrases: FrasesDialogo = {
     'Wie groß sind Sie?',
     'Wie alt sind Sie?'
   ]
+}
+
+// Helper function to create mock data context
+function createMockDataContext(frasesDialogo: FrasesDialogo | null = mockFrases, loading = false, error: string | null = null) {
+  return {
+    historico: { exercicios: [] },
+    prompts: { descricao: '', data_atualizacao: '', marcador_de_paramentros: '', prompts: [] },
+    baseConhecimento: [],
+    frasesDialogo,
+    loading: {
+      historico: false,
+      prompts: false,
+      baseConhecimento: false,
+      frasesDialogo: loading
+    },
+    errors: {
+      historico: null,
+      prompts: null,
+      baseConhecimento: null,
+      frasesDialogo: error
+    },
+    refreshHistorico: vi.fn(),
+    refreshPrompts: vi.fn(),
+    refreshBaseConhecimento: vi.fn(),
+    refreshFrasesDialogo: vi.fn(),
+    refreshAll: vi.fn()
+  }
 }
 
 function renderDialogPhrasesPage() {
@@ -30,10 +63,12 @@ function renderDialogPhrasesPage() {
 describe('DialogPhrasesPage Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Mock padrão para useData
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
   })
 
   it('deve exibir estado de carregamento inicialmente', () => {
-    vi.mocked(api.getFrasesDialogo).mockImplementation(() => new Promise(() => {}))
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(null, true))
 
     renderDialogPhrasesPage()
 
@@ -41,7 +76,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve carregar e exibir as frases do diálogo', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderDialogPhrasesPage()
 
@@ -57,8 +92,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve exibir mensagem de erro quando falha ao carregar', async () => {
-    const error = new api.ApiError('Erro de rede')
-    vi.mocked(api.getFrasesDialogo).mockRejectedValueOnce(error)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(null, false, 'Erro ao carregar frases do diálogo: Erro de rede'))
 
     renderDialogPhrasesPage()
 
@@ -70,7 +104,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve ativar modo de edição ao clicar em Editar', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
@@ -89,7 +123,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve permitir editar a saudação', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
@@ -114,7 +148,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve permitir editar a despedida', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
@@ -139,7 +173,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve permitir editar frases intermediárias', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
@@ -164,7 +198,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve adicionar nova frase intermediária', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
@@ -192,7 +226,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve remover frase intermediária', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
@@ -226,7 +260,7 @@ describe('DialogPhrasesPage Component', () => {
       intermediarias: ['Wie heißen Sie?']
     }
 
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(singlePhraseMock)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext(singlePhraseMock))
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
@@ -248,7 +282,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve salvar alterações e sair do modo de edição', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
@@ -280,7 +314,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve cancelar edição e descartar alterações', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
@@ -316,7 +350,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve exibir contador de frases intermediárias', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderDialogPhrasesPage()
 
@@ -330,7 +364,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve ter link para voltar à página inicial', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderDialogPhrasesPage()
 
@@ -344,7 +378,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('deve exibir labels descritivos', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
 
     renderDialogPhrasesPage()
 
@@ -358,7 +392,7 @@ describe('DialogPhrasesPage Component', () => {
   })
 
   it('não deve exibir botão "Editar" quando em modo de edição', async () => {
-    vi.mocked(api.getFrasesDialogo).mockResolvedValueOnce(mockFrases)
+    vi.mocked(DataContext.useData).mockReturnValue(createMockDataContext())
     const user = userEvent.setup()
 
     renderDialogPhrasesPage()
