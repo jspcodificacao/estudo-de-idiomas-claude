@@ -1,0 +1,66 @@
+{
+  "exercicios": [
+    {
+      "data_hora": "2025-11-13T09:15:00Z",
+      "exercicio_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      "conhecimento_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+      "idioma": "alemao",
+      "tipo_pratica": "traducao",
+      "resultado_exercicio": {
+        "campo_fornecido": "traducao",
+        "campos_preenchidos": ["texto_original", "transcricao_ipa"],
+        "valores_preenchidos": ["das Mädchen", "/ˈmɛːtçən/"],
+        "campos_resultados": [true, true]
+      }
+    },
+    {
+      "data_hora": "2025-11-12T18:30:00Z",
+      "exercicio_id": "c4d5e6f7-a8b9-c0d1-e2f3-a4b5c6d7e8f9",
+      "conhecimento_id": "b1a2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
+      "idioma": "ingles",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "The quick brown fox jumps over the lazy dog.",
+        "transcricao_usuario": "The quick brown fox jumped over the lazy dog.",
+        "correto": false,
+        "velocidade_utilizada": "1.0"
+      }
+    },
+    {
+      "data_hora": "2025-11-11T07:00:00Z",
+      "exercicio_id": "12345678-90ab-cdef-0123-456789abcdef",
+      "conhecimento_id": "fedcba98-7654-3210-fedc-ba9876543210",
+      "idioma": "alemao",
+      "tipo_pratica": "pronuncia",
+      "resultado_exercicio": {
+        "texto_original": "Entschuldigung",
+        "transcricao_stt": "Enchuldegung",
+        "correto": "Parcial",
+        "comentario": "A pronúncia do dígrafo 'tsch' pode ser melhorada."
+      }
+    },
+    {
+        "data_hora": "2025-11-10T20:05:10Z",
+        "exercicio_id": "e9f8d7c6-b5a4-3210-e9f8-d7c6b5a43210",
+        "conhecimento_id": "a1b2c3d4-e5f6-7890-a1b2-c3d4e5f67890",
+        "idioma": "ingles",
+        "tipo_pratica": "pronuncia_de_numeros",
+        "resultado_exercicio": {
+          "numero_referencia": "1839",
+          "audio_usuario_url": "https://storage.example.com/audio/1839-user-attempt.mp3",
+          "transcricao_correta": "one thousand eight hundred thirty-nine",
+          "acertou": true
+        }
+    },
+    {
+        "data_hora": "2025-11-09T11:45:00Z",
+        "exercicio_id": "b2c3d4e5-f6a7-8901-b2c3-d4e5f6a78901",
+        "conhecimento_id": "c3d4e5f6-a7b8-9012-c3d4-e5f6a7b89012",
+        "idioma": "alemao",
+        "tipo_pratica": "dialogo",
+        "resultado_exercicio": {
+          "correto": "Sim"
+        }
+      }
+  ]
+}

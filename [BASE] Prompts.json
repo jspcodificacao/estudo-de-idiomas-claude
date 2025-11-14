@@ -1,0 +1,73 @@
+{
+  "descricao": "Uma coleção de prompts para tarefas de geração e manipulação de texto.",
+  "data_atualizacao": "2025-11-13T09:00:00Z",
+  "marcador_de_paramentros": "{{param}}",
+  "prompts": [
+    {
+      "prompt_id": "gerador_resumo_v1",
+      "descricao": "Cria um resumo de um texto fornecido pelo usuário, extraindo os pontos principais em formato de lista.",
+      "template": "Por favor, gere um resumo conciso do seguinte texto: '{{texto_completo}}'. O resumo deve ter no máximo {{numero_de_paragrafos}} parágrafos e destacar os pontos-chave.",
+      "parametros": [
+        "texto_completo",
+        "numero_de_paragrafos"
+      ],
+      "resposta_estruturada": true,
+      "estrutura_esperada": {
+        "type": "object",
+        "properties": {
+          "resumo_gerado": {
+            "type": "string",
+            "description": "O texto do resumo."
+          },
+          "pontos_chave": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Uma lista com os principais pontos abordados no texto."
+          }
+        },
+        "required": ["resumo_gerado", "pontos_chave"]
+      },
+      "ultima_edicao": "2025-11-13T08:45:00Z"
+    },
+    {
+      "prompt_id": "tradutor_texto_v2",
+      "descricao": "Traduz um trecho de texto de um idioma de origem para um idioma de destino.",
+      "template": "Traduza o texto '{{texto_original}}' do idioma '{{idioma_origem}}' para o idioma '{{idioma_destino}}'.",
+      "parametros": [
+        "texto_original",
+        "idioma_origem",
+        "idioma_destino"
+      ],
+      "resposta_estruturada": false,
+      "ultima_edicao": "2025-10-28T14:20:00Z"
+    },
+    {
+        "prompt_id": "classificador_sentimento_v1",
+        "descricao": "Analisa o sentimento de um texto e o classifica como positivo, negativo ou neutro, fornecendo uma pontuação.",
+        "template": "Analise o sentimento do seguinte texto e classifique-o: '{{texto_usuario}}'.",
+        "parametros": [
+          "texto_usuario"
+        ],
+        "resposta_estruturada": true,
+        "estrutura_esperada": {
+          "type": "object",
+          "properties": {
+            "sentimento": {
+              "type": "string",
+              "enum": ["positivo", "negativo", "neutro"]
+            },
+            "pontuacao_confianca": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "A pontuação de confiança da classificação do sentimento, variando de 0.0 a 1.0."
+            }
+          },
+          "required": ["sentimento", "pontuacao_confianca"]
+        },
+        "ultima_edicao": "2025-11-10T11:05:00Z"
+      }
+  ]
+}
