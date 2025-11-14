@@ -4,7 +4,8 @@ Modelos Pydantic 2 para validação dos arquivos JSON da aplicação de estudo d
 from datetime import datetime
 from typing import List, Optional, Any
 from enum import Enum
-from pydantic import BaseModel, Field, UUID4, RootModel
+from uuid import UUID
+from pydantic import BaseModel, Field, RootModel
 
 
 # ========== Conhecimento de Idiomas ==========
@@ -21,7 +22,7 @@ class TipoConhecimentoEnum(str, Enum):
 
 class ConhecimentoIdioma(BaseModel):
     """Modelo para um registro de conhecimento de idioma."""
-    conhecimento_id: UUID4 = Field(..., description="Identificador único universal (UUID) para o registro")
+    conhecimento_id: UUID = Field(..., description="Identificador único universal (UUID) para o registro")
     data_hora: datetime = Field(..., description="Data e hora da criação/modificação no formato ISO 8601")
     idioma: IdiomaEnum = Field(..., description="O idioma ao qual o conhecimento se refere")
     tipo_conhecimento: TipoConhecimentoEnum = Field(..., description="O tipo de conhecimento")
@@ -126,8 +127,8 @@ class ResultadoPronunciaNumeros(BaseModel):
 class Exercicio(BaseModel):
     """Modelo para um exercício de prática."""
     data_hora: datetime = Field(..., description="Data e hora em que o exercício foi realizado")
-    exercicio_id: UUID4 = Field(..., description="Identificador único para o registro do exercício")
-    conhecimento_id: UUID4 = Field(..., description="Identificador único para o conhecimento sendo praticado")
+    exercicio_id: UUID = Field(..., description="Identificador único para o registro do exercício")
+    conhecimento_id: UUID = Field(..., description="Identificador único para o conhecimento sendo praticado")
     idioma: IdiomaEnum = Field(..., description="O idioma que está sendo praticado")
     tipo_pratica: TipoPraticaEnum = Field(..., description="O tipo de exercício de prática realizado")
     resultado_exercicio: Any = Field(..., description="Resultados detalhados do exercício")
