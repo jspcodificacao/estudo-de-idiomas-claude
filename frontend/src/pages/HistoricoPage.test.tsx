@@ -85,9 +85,9 @@ describe('HistoricoPage Component', () => {
     })
 
     expect(screen.getByText(/Total de 3 exercício\(s\) encontrado\(s\)/i)).toBeInTheDocument()
-    expect(screen.getAllByText('Tradução').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Audição').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Pronúncia').length).toBeGreaterThan(0)
+    expect(screen.getByText('2/3 acertos')).toBeInTheDocument()
+    expect(screen.getByText('Correto')).toBeInTheDocument()
+    expect(screen.getByText('Sim')).toBeInTheDocument()
   })
 
   it('deve exibir mensagem de erro quando falha ao carregar', async () => {
@@ -250,5 +250,314 @@ describe('HistoricoPage Component', () => {
 
     expect(badgesIngles.length).toBeGreaterThan(0)
     expect(badgesFrances.length).toBeGreaterThan(0)
+  })
+
+  it('deve exibir o resultado correto para exercícios de diálogo', async () => {
+    const historicoDialogo: BaseHistoricoPratica = {
+      exercicios: [
+        {
+          data_hora: '2024-01-16T11:00:00',
+          exercicio_id: 'd1e2f3a4-b5c6-d7e8-f9a0-b1c2d3e4f5a6',
+          conhecimento_id: 'd4e5f6a7-b8c9-d0e1-f2a3-b4c5d6e7f8a9',
+          idioma: IdiomaEnum.Alemao,
+          tipo_pratica: TipoPraticaEnum.Dialogo,
+          resultado_exercicio: {
+            frase_esperada: 'Guten Tag',
+            frase_usuario: 'Guten Tag',
+            correto: 'Sim'
+          }
+        }
+      ]
+    }
+
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoDialogo)
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    // Check for "Diálogo" in heading
+    const dialogoHeadings = screen.getAllByText('Diálogo')
+    expect(dialogoHeadings.length).toBeGreaterThan(0)
+
+    // Check for result "Sim"
+    expect(screen.getByText('Sim')).toBeInTheDocument()
+  })
+
+  it('deve exibir o resultado correto para exercícios de pronúncia de números', async () => {
+    const historicoPronunciaNumeros: BaseHistoricoPratica = {
+      exercicios: [
+        {
+          data_hora: '2024-01-17T12:00:00',
+          exercicio_id: 'e2f3a4b5-c6d7-e8f9-a0b1-c2d3e4f5a6b7',
+          conhecimento_id: 'e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0',
+          idioma: IdiomaEnum.Espanhol,
+          tipo_pratica: TipoPraticaEnum.PronunciaDeNumeros,
+          resultado_exercicio: {
+            numero_esperado: 42,
+            numero_usuario: 42,
+            acertou: true
+          }
+        }
+      ]
+    }
+
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoPronunciaNumeros)
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    // Check for "Pronúncia de Números" in heading
+    const pronunciaNumHeadings = screen.getAllByText('Pronúncia de Números')
+    expect(pronunciaNumHeadings.length).toBeGreaterThan(0)
+
+    // Check for result "Acertou"
+    expect(screen.getByText('Acertou')).toBeInTheDocument()
+  })
+
+  it('deve exibir "Errou" para exercícios de pronúncia de números incorretos', async () => {
+    const historicoPronunciaNumeros: BaseHistoricoPratica = {
+      exercicios: [
+        {
+          data_hora: '2024-01-17T12:00:00',
+          exercicio_id: 'e2f3a4b5-c6d7-e8f9-a0b1-c2d3e4f5a6b7',
+          conhecimento_id: 'e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0',
+          idioma: IdiomaEnum.Espanhol,
+          tipo_pratica: TipoPraticaEnum.PronunciaDeNumeros,
+          resultado_exercicio: {
+            numero_esperado: 42,
+            numero_usuario: 24,
+            acertou: false
+          }
+        }
+      ]
+    }
+
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoPronunciaNumeros)
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('Errou')).toBeInTheDocument()
+  })
+
+  it('deve exibir resultado "Parcial" para pronúncia parcialmente correta', async () => {
+    const historicoPronuncia: BaseHistoricoPratica = {
+      exercicios: [
+        {
+          data_hora: '2024-01-18T13:00:00',
+          exercicio_id: 'f3a4b5c6-d7e8-f9a0-b1c2-d3e4f5a6b7c8',
+          conhecimento_id: 'f6a7b8c9-d0e1-f2a3-b4c5-d6e7f8a9b0c1',
+          idioma: IdiomaEnum.Ingles,
+          tipo_pratica: TipoPraticaEnum.Pronuncia,
+          resultado_exercicio: {
+            texto_original: 'World',
+            transcricao_stt: 'Worlt',
+            correto: 'Parcial',
+            comentario: 'Quase lá'
+          }
+        }
+      ]
+    }
+
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoPronuncia)
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('Parcial')).toBeInTheDocument()
+  })
+
+  it('deve exibir resultado "Não" para pronúncia incorreta', async () => {
+    const historicoPronuncia: BaseHistoricoPratica = {
+      exercicios: [
+        {
+          data_hora: '2024-01-18T13:00:00',
+          exercicio_id: 'f3a4b5c6-d7e8-f9a0-b1c2-d3e4f5a6b7c8',
+          conhecimento_id: 'f6a7b8c9-d0e1-f2a3-b4c5-d6e7f8a9b0c1',
+          idioma: IdiomaEnum.Ingles,
+          tipo_pratica: TipoPraticaEnum.Pronuncia,
+          resultado_exercicio: {
+            texto_original: 'World',
+            transcricao_stt: 'Word',
+            correto: 'Não',
+            comentario: 'Tente novamente'
+          }
+        }
+      ]
+    }
+
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoPronuncia)
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('Não')).toBeInTheDocument()
+  })
+
+  it('deve exibir "Incorreto" para audição com resposta errada', async () => {
+    const historicoAudicao: BaseHistoricoPratica = {
+      exercicios: [
+        {
+          data_hora: '2024-01-19T14:00:00',
+          exercicio_id: 'a4b5c6d7-e8f9-a0b1-c2d3-e4f5a6b7c8d9',
+          conhecimento_id: 'a7b8c9d0-e1f2-a3b4-c5d6-e7f8a9b0c1d2',
+          idioma: IdiomaEnum.Frances,
+          tipo_pratica: TipoPraticaEnum.Audicao,
+          resultado_exercicio: {
+            texto_original: 'Bonjour',
+            transcricao_usuario: 'Bonsoir',
+            correto: false,
+            velocidade_utilizada: '1.0'
+          }
+        }
+      ]
+    }
+
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoAudicao)
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('Incorreto')).toBeInTheDocument()
+  })
+
+  it('deve exibir "0/3 acertos" para tradução com todas as respostas erradas', async () => {
+    const historicoTraducao: BaseHistoricoPratica = {
+      exercicios: [
+        {
+          data_hora: '2024-01-20T15:00:00',
+          exercicio_id: 'b5c6d7e8-f9a0-b1c2-d3e4-f5a6b7c8d9e0',
+          conhecimento_id: 'b8c9d0e1-f2a3-b4c5-d6e7-f8a9b0c1d2e3',
+          idioma: IdiomaEnum.Alemao,
+          tipo_pratica: TipoPraticaEnum.Traducao,
+          resultado_exercicio: {
+            campo_fornecido: 'texto_original',
+            campos_preenchidos: ['traducao'],
+            valores_preenchidos: ['wrong'],
+            campos_resultados: [false, false, false]
+          }
+        }
+      ]
+    }
+
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoTraducao)
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('0/3 acertos')).toBeInTheDocument()
+  })
+
+  it('deve exibir "3/3 acertos" para tradução com todas as respostas corretas', async () => {
+    const historicoTraducao: BaseHistoricoPratica = {
+      exercicios: [
+        {
+          data_hora: '2024-01-20T15:00:00',
+          exercicio_id: 'b5c6d7e8-f9a0-b1c2-d3e4-f5a6b7c8d9e0',
+          conhecimento_id: 'b8c9d0e1-f2a3-b4c5-d6e7-f8a9b0c1d2e3',
+          idioma: IdiomaEnum.Alemao,
+          tipo_pratica: TipoPraticaEnum.Traducao,
+          resultado_exercicio: {
+            campo_fornecido: 'texto_original',
+            campos_preenchidos: ['traducao'],
+            valores_preenchidos: ['correct'],
+            campos_resultados: [true, true, true]
+          }
+        }
+      ]
+    }
+
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(historicoTraducao)
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('3/3 acertos')).toBeInTheDocument()
+  })
+
+  it('deve aplicar filtro por idioma corretamente', async () => {
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    const user = userEvent.setup()
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    // Inicialmente deve mostrar 3 exercícios
+    expect(screen.getByText(/Total de 3 exercício\(s\)/i)).toBeInTheDocument()
+
+    // Filtrar por Inglês
+    const filtroIdioma = screen.getByLabelText('Idioma')
+    await user.selectOptions(filtroIdioma, IdiomaEnum.Ingles)
+
+    // Deve mostrar apenas 2 exercícios de Inglês
+    await waitFor(() => {
+      expect(screen.getByText(/Total de 2 exercício\(s\)/i)).toBeInTheDocument()
+    })
+  })
+
+  it('deve aplicar filtro por tipo de exercício corretamente', async () => {
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    const user = userEvent.setup()
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    // Filtrar por Tradução
+    const filtroTipo = screen.getByLabelText('Tipo de Exercício')
+    await user.selectOptions(filtroTipo, TipoPraticaEnum.Traducao)
+
+    // Deve mostrar apenas 1 exercício de Tradução
+    await waitFor(() => {
+      expect(screen.getByText(/Total de 1 exercício\(s\)/i)).toBeInTheDocument()
+    })
+  })
+
+  it('deve exibir mensagem quando não há exercícios após filtrar', async () => {
+    vi.mocked(api.getHistoricoPratica).mockResolvedValueOnce(mockHistorico)
+    const user = userEvent.setup()
+
+    renderHistoricoPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Histórico de Exercícios')).toBeInTheDocument()
+    })
+
+    // Filtrar por Espanhol (não há exercícios de Espanhol no mock)
+    const filtroIdioma = screen.getByLabelText('Idioma')
+    await user.selectOptions(filtroIdioma, IdiomaEnum.Espanhol)
+
+    await waitFor(() => {
+      expect(screen.getByText('Nenhum exercício encontrado com os filtros selecionados.')).toBeInTheDocument()
+    })
   })
 })
