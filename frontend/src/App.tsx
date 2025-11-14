@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import NotImplemented from './pages/NotImplemented'
+import HistoricoPage from './pages/HistoricoPage'
 
 function App() {
   return (
@@ -9,7 +10,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/editar-prompts" element={<NotImplemented feature="Editar Prompts" />} />
         <Route path="/mudar-base-conhecimento" element={<NotImplemented feature="Mudar Base de Conhecimento" />} />
-        <Route path="/navegar-historico" element={<NotImplemented feature="Navegar no Histórico" />} />
+        <Route path="/navegar-historico" element={<HistoricoPage />} />
         <Route path="/editar-frases-dialogo" element={<NotImplemented feature="Editar Frases do Diálogo" />} />
       </Routes>
     </div>
