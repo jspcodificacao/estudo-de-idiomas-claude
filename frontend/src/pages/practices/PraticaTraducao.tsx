@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useData } from '../../contexts/DataContext'
 import { postExercicio } from '../../services/api'
+import VirtualKeyboard from '../../components/VirtualKeyboard'
 import type {
   ConhecimentoIdioma,
   IdiomaConhecimentoEnum,
@@ -46,6 +47,13 @@ export default function PraticaTraducao() {
 
   // Completion state
   const [allPracticed, setAllPracticed] = useState(false)
+
+  // Virtual keyboard state
+  const [focusedField, setFocusedField] = useState<FieldKey | null>(null)
+  const textoOriginalRef = useRef<HTMLInputElement>(null)
+  const transcricaoIpaRef = useRef<HTMLInputElement>(null)
+  const traducaoRef = useRef<HTMLInputElement>(null)
+  const divisaoSilabicaRef = useRef<HTMLInputElement>(null)
 
   // Extract unique languages from knowledge base
   const availableLanguages = useMemo(() => {
@@ -228,6 +236,92 @@ export default function PraticaTraducao() {
       divisao_silabica: 'Divisão Silábica',
     }
     return labels[field]
+  }
+
+  // Handle virtual keyboard key press
+  const handleKeyPress = (character: string) => {
+    if (!focusedField) return
+
+    // Get current value and cursor position from the focused field
+    const fieldRef = {
+      texto_original: textoOriginalRef,
+      transcricao_ipa: transcricaoIpaRef,
+      traducao: traducaoRef,
+      divisao_silabica: divisaoSilabicaRef,
+    }[focusedField]
+
+    const currentRef = fieldRef?.current
+    if (!currentRef) return
+
+    const cursorPos = currentRef.selectionStart || 0
+    const currentValue = currentRef.value
+
+    // Special character combination rules
+    const subscriptArch = '\u032F' // ̯
+    const syllabicityMark = '\u0329' // ̩
+    const topTieBar = '\u0361' // ͡
+
+    const ipaVowels = ['ə', 'ɪ', 'ɛ', 'ʏ', 'ɐ', 'ʊ', 'ɔ']
+    const ipaConsonants = ['m', 'n', 'ŋ', 'l', 'r', 'ɹ']
+
+    let newValue = currentValue
+    let newCursorPos = cursorPos
+
+    // Rule for Subscript arch (̯) - applies to IPA vowels
+    if (character === subscriptArch) {
+      const charBeforeCursor = currentValue.charAt(cursorPos - 1)
+      if (ipaVowels.includes(charBeforeCursor)) {
+        // Combine with previous vowel
+        newValue = currentValue.slice(0, cursorPos) + character + currentValue.slice(cursorPos)
+        newCursorPos = cursorPos + character.length
+      }
+    }
+    // Rule for Syllabicity mark (̩) - applies to consonants
+    else if (character === syllabicityMark) {
+      const charBeforeCursor = currentValue.charAt(cursorPos - 1)
+      if (ipaConsonants.includes(charBeforeCursor)) {
+        // Combine with previous consonant
+        newValue = currentValue.slice(0, cursorPos) + character + currentValue.slice(cursorPos)
+        newCursorPos = cursorPos + character.length
+      }
+    }
+    // Rule for Top tie bar (͡) - applies to two consecutive consonants
+    else if (character === topTieBar) {
+      if (cursorPos >= 2) {
+        // Insert between the two consonants before cursor
+        newValue = currentValue.slice(0, cursorPos - 1) + character + currentValue.slice(cursorPos - 1)
+        newCursorPos = cursorPos + character.length
+      }
+    }
+    // Regular character insertion
+    else {
+      newValue = currentValue.slice(0, cursorPos) + character + currentValue.slice(cursorPos)
+      newCursorPos = cursorPos + character.length
+    }
+
+    // Update the field state
+    switch (focusedField) {
+      case 'texto_original':
+        setTextoOriginal(newValue)
+        break
+      case 'transcricao_ipa':
+        setTranscricaoIpa(newValue)
+        break
+      case 'traducao':
+        setTraducao(newValue)
+        break
+      case 'divisao_silabica':
+        setDivisaoSilabica(newValue)
+        break
+    }
+
+    // Set cursor position after React updates
+    setTimeout(() => {
+      if (currentRef) {
+        currentRef.setSelectionRange(newCursorPos, newCursorPos)
+        currentRef.focus()
+      }
+    }, 0)
   }
 
   // Loading state
@@ -511,8 +605,10 @@ export default function PraticaTraducao() {
                     <input
                       type="text"
                       id="texto-original"
+                      ref={textoOriginalRef}
                       value={textoOriginal}
                       onChange={(e) => setTextoOriginal(e.target.value)}
+                      onFocus={() => setFocusedField('texto_original')}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Digite o texto no idioma original"
                     />
@@ -527,8 +623,10 @@ export default function PraticaTraducao() {
                     <input
                       type="text"
                       id="transcricao-ipa"
+                      ref={transcricaoIpaRef}
                       value={transcricaoIpa}
                       onChange={(e) => setTranscricaoIpa(e.target.value)}
+                      onFocus={() => setFocusedField('transcricao_ipa')}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Digite a transcrição fonética (IPA)"
                     />
@@ -543,8 +641,10 @@ export default function PraticaTraducao() {
                     <input
                       type="text"
                       id="traducao"
+                      ref={traducaoRef}
                       value={traducao}
                       onChange={(e) => setTraducao(e.target.value)}
+                      onFocus={() => setFocusedField('traducao')}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Digite a tradução"
                     />
@@ -559,8 +659,10 @@ export default function PraticaTraducao() {
                     <input
                       type="text"
                       id="divisao-silabica"
+                      ref={divisaoSilabicaRef}
                       value={divisaoSilabica}
                       onChange={(e) => setDivisaoSilabica(e.target.value)}
+                      onFocus={() => setFocusedField('divisao_silabica')}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Digite a divisão silábica"
                     />
@@ -586,6 +688,24 @@ export default function PraticaTraducao() {
                   </button>
                 </div>
               </form>
+
+              {/* Virtual Keyboard */}
+              {selectedIdioma && (
+                <div className="mt-8">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                    Teclado Virtual
+                  </h2>
+                  <VirtualKeyboard
+                    idioma={selectedIdioma}
+                    onKeyPress={handleKeyPress}
+                  />
+                  {focusedField && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Campo ativo: <span className="font-semibold">{getFieldLabel(focusedField)}</span>
+                    </p>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>
