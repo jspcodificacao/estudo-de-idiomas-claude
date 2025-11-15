@@ -3,11 +3,12 @@ Servidor FastAPI para a aplicação de estudo de idiomas.
 """
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel, Field
 from dotenv import load_dotenv
+import httpx
 
 from models import (
     ConhecimentoIdioma,
@@ -39,6 +40,17 @@ app.add_middleware(
 
 # Inicializar validador
 validador = ValidadorJSON(base_path="../public")
+
+# Configuração do serviço TTS/STT
+TTS_SERVICE_PORT = int(os.getenv("SERVICO_TTS_E_STT", 3015))
+TTS_SERVICE_URL = f"http://localhost:{TTS_SERVICE_PORT}"
+
+
+# Modelos de dados para TTS
+class GenerateAudioRequest(BaseModel):
+    text: str
+    voice: Optional[str] = "Kore"
+    speed: Optional[float] = Field(default=1.0, ge=0.5, le=2.0)
 
 
 @app.get("/")
@@ -173,6 +185,64 @@ async def obter_frases_dialogo():
         raise HTTPException(status_code=422, detail=f"Erro de validação: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+
+
+@app.post("/api/generate-audio")
+async def generate_audio(request: GenerateAudioRequest):
+    """
+    Endpoint para gerar áudio a partir de texto (TTS).
+
+    Faz proxy para o serviço TTS/STT local.
+
+    Args:
+        request: Requisição contendo texto, voz opcional e velocidade
+
+    Returns:
+        JSON com áudio em base64, mimeType e metadata
+
+    Raises:
+        HTTPException: Se houver erro na geração do áudio ou serviço indisponível
+    """
+    try:
+        # Fazer requisição para o serviço TTS
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{TTS_SERVICE_URL}/api/generate-audio",
+                json={
+                    "text": request.text,
+                    "voice": request.voice,
+                    "speed": request.speed
+                }
+            )
+
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 503:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Serviço TTS não disponível. Certifique-se de que o serviço está rodando."
+                )
+            else:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Erro ao gerar áudio: {response.text}"
+                )
+
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Não foi possível conectar ao serviço TTS em {TTS_SERVICE_URL}. Verifique se o serviço está rodando."
+        )
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=504,
+            detail="Timeout ao gerar áudio. O serviço TTS demorou muito para responder."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro interno ao gerar áudio: {str(e)}"
+        )
 
 
 if __name__ == "__main__":
