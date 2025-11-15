@@ -3,7 +3,7 @@ Servidor FastAPI para a aplicação de estudo de idiomas.
 """
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import ValidationError, BaseModel, Field
@@ -45,12 +45,28 @@ validador = ValidadorJSON(base_path="../public")
 TTS_SERVICE_PORT = int(os.getenv("SERVICO_TTS_E_STT", 3015))
 TTS_SERVICE_URL = f"http://localhost:{TTS_SERVICE_PORT}"
 
+# Configuração do serviço Ollama
+OLLAMA_SERVICE_PORT = int(os.getenv("SERVICO_OLLAMA", 11434))
+OLLAMA_SERVICE_URL = f"http://localhost:{OLLAMA_SERVICE_PORT}"
+
 
 # Modelos de dados para TTS
 class GenerateAudioRequest(BaseModel):
     text: str
     voice: Optional[str] = "Kore"
     speed: Optional[float] = Field(default=1.0, ge=0.5, le=2.0)
+
+
+# Modelos de dados para Ollama
+class OllamaMessage(BaseModel):
+    role: str
+    content: str
+
+
+class OllamaChatRequest(BaseModel):
+    model: str = "gemma3:1b"
+    messages: List[OllamaMessage]
+    stream: bool = False
 
 
 @app.get("/")
@@ -69,7 +85,8 @@ async def root():
             "POST": [
                 "/api/historico_de_pratica - Inserir novo exercício",
                 "/api/generate-audio - Gerar áudio a partir de texto (TTS)",
-                "/api/transcrever-audio - Transcrever áudio em texto (STT)"
+                "/api/transcrever-audio - Transcrever áudio em texto (STT)",
+                "/api/chat - Consultar LLM via Ollama"
             ]
         }
     }
@@ -305,6 +322,64 @@ async def transcrever_audio(file: UploadFile = File(...)):
         raise HTTPException(
             status_code=500,
             detail=f"Erro interno ao transcrever áudio: {str(e)}"
+        )
+
+
+@app.post("/api/chat")
+async def chat_with_ollama(request: OllamaChatRequest):
+    """
+    Endpoint para consultar LLM via Ollama.
+
+    Faz proxy para o serviço Ollama local.
+
+    Args:
+        request: Requisição contendo modelo, mensagens e opção de streaming
+
+    Returns:
+        JSON com resposta do LLM
+
+    Raises:
+        HTTPException: Se houver erro na consulta ou serviço indisponível
+    """
+    try:
+        # Fazer requisição para o serviço Ollama
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(
+                f"{OLLAMA_SERVICE_URL}/api/chat",
+                json={
+                    "model": request.model,
+                    "messages": [msg.model_dump() for msg in request.messages],
+                    "stream": request.stream
+                }
+            )
+
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 404:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Modelo '{request.model}' não encontrado no Ollama. Verifique se o modelo está instalado."
+                )
+            else:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Erro ao consultar Ollama: {response.text}"
+                )
+
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Não foi possível conectar ao serviço Ollama em {OLLAMA_SERVICE_URL}. Verifique se o Ollama está rodando."
+        )
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=504,
+            detail="Timeout ao consultar Ollama. O serviço demorou muito para responder."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro interno ao consultar Ollama: {str(e)}"
         )
 
 
