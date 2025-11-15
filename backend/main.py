@@ -4,7 +4,7 @@ Servidor FastAPI para a aplicação de estudo de idiomas.
 import os
 from pathlib import Path
 from typing import List, Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import ValidationError, BaseModel, Field
 from dotenv import load_dotenv
@@ -67,7 +67,9 @@ async def root():
                 "/api/frases_do_dialogo"
             ],
             "POST": [
-                "/api/historico_de_pratica - Inserir novo exercício"
+                "/api/historico_de_pratica - Inserir novo exercício",
+                "/api/generate-audio - Gerar áudio a partir de texto (TTS)",
+                "/api/transcrever-audio - Transcrever áudio em texto (STT)"
             ]
         }
     }
@@ -242,6 +244,67 @@ async def generate_audio(request: GenerateAudioRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Erro interno ao gerar áudio: {str(e)}"
+        )
+
+
+@app.post("/api/transcrever-audio")
+async def transcrever_audio(file: UploadFile = File(...)):
+    """
+    Endpoint para transcrever áudio em texto (STT).
+
+    Faz proxy para o serviço TTS/STT local.
+
+    Args:
+        file: Arquivo de áudio para transcrição
+
+    Returns:
+        JSON com texto transcrito, idioma detectado e segmentos
+
+    Raises:
+        HTTPException: Se houver erro na transcrição ou serviço indisponível
+    """
+    try:
+        # Ler arquivo de áudio
+        audio_bytes = await file.read()
+
+        # Fazer requisição para o serviço STT usando multipart form data
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            files = {
+                "file": (file.filename or "audio.wav", audio_bytes, file.content_type or "audio/wav")
+            }
+
+            response = await client.post(
+                f"{TTS_SERVICE_URL}/api/transcribe-audio",
+                files=files
+            )
+
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 503:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Serviço STT não disponível. Certifique-se de que o serviço está rodando."
+                )
+            else:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Erro ao transcrever áudio: {response.text}"
+                )
+
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Não foi possível conectar ao serviço STT em {TTS_SERVICE_URL}. Verifique se o serviço está rodando."
+        )
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=504,
+            detail="Timeout ao transcrever áudio. O serviço STT demorou muito para responder."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro interno ao transcrever áudio: {str(e)}"
         )
 
 
