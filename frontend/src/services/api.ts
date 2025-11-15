@@ -1,4 +1,4 @@
-import type { BaseHistoricoPratica, BasePrompts, ConhecimentoIdioma, FrasesDialogo } from '../types/api'
+import type { BaseHistoricoPratica, BasePrompts, ConhecimentoIdioma, FrasesDialogo, Exercicio } from '../types/api'
 
 const API_BASE_URL = `http://localhost:${import.meta.env.VITE_BACKEND_PORT || 3010}`
 
@@ -50,4 +50,33 @@ export async function getBaseConhecimento(): Promise<ConhecimentoIdioma[]> {
 
 export async function getFrasesDialogo(): Promise<FrasesDialogo> {
   return fetchApi<FrasesDialogo>('/api/frases_do_dialogo')
+}
+
+export async function postExercicio(exercicio: Exercicio): Promise<BaseHistoricoPratica> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/historico_de_pratica`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(exercicio),
+    })
+
+    if (!response.ok) {
+      throw new ApiError(
+        `Erro ao salvar exercício: ${response.statusText}`,
+        response.status,
+        response.statusText
+      )
+    }
+
+    return await response.json()
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error
+    }
+    throw new ApiError(
+      error instanceof Error ? error.message : 'Erro desconhecido ao salvar exercício'
+    )
+  }
 }

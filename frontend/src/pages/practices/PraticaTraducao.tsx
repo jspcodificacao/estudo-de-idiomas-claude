@@ -1,15 +1,37 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useData } from '../../contexts/DataContext'
-import type { ConhecimentoIdioma, IdiomaConhecimentoEnum, TipoConhecimentoEnum } from '../../types/api'
+import { postExercicio } from '../../services/api'
+import type {
+  ConhecimentoIdioma,
+  IdiomaConhecimentoEnum,
+  TipoConhecimentoEnum,
+  CampoEnum,
+  ResultadoTraducao,
+  Exercicio
+} from '../../types/api'
+
+type FieldKey = 'texto_original' | 'transcricao_ipa' | 'traducao' | 'divisao_silabica'
+
+interface FieldResult {
+  field: FieldKey
+  userValue: string
+  correctValue: string
+  isCorrect: boolean
+}
 
 export default function PraticaTraducao() {
   const navigate = useNavigate()
-  const { baseConhecimento, historico, loading, errors } = useData()
+  const { baseConhecimento, loading, errors } = useData()
 
   // Selectors state
   const [selectedIdioma, setSelectedIdioma] = useState<IdiomaConhecimentoEnum | ''>('')
-  const [selectedTipo, setSelectedTipo] = useState<TipoConhecimentoEnum | ''>('')
+  const [selectedTipo, setSelectedTipo] = useState<TipoConhecimentoEnum | 'todos'>('todos')
+
+  // Exercise state
+  const [currentExercise, setCurrentExercise] = useState<ConhecimentoIdioma | null>(null)
+  const [providedField, setProvidedField] = useState<FieldKey | null>(null)
+  const [practicedRecords, setPracticedRecords] = useState<Set<string>>(new Set())
 
   // Form fields state
   const [textoOriginal, setTextoOriginal] = useState('')
@@ -17,8 +39,13 @@ export default function PraticaTraducao() {
   const [traducao, setTraducao] = useState('')
   const [divisaoSilabica, setDivisaoSilabica] = useState('')
 
-  // Current exercise state
-  const [currentExercise, setCurrentExercise] = useState<ConhecimentoIdioma | null>(null)
+  // Result state
+  const [showResult, setShowResult] = useState(false)
+  const [results, setResults] = useState<FieldResult[]>([])
+  const [saving, setSaving] = useState(false)
+
+  // Completion state
+  const [allPracticed, setAllPracticed] = useState(false)
 
   // Extract unique languages from knowledge base
   const availableLanguages = useMemo(() => {
@@ -39,25 +66,168 @@ export default function PraticaTraducao() {
     if (availableLanguages.length > 0 && !selectedIdioma) {
       setSelectedIdioma(availableLanguages[0])
     }
-    if (availableTypes.length > 0 && !selectedTipo) {
-      setSelectedTipo(availableTypes[0])
+  }, [availableLanguages, selectedIdioma])
+
+  // Filter records based on selected language and type
+  const filteredRecords = useMemo(() => {
+    if (!baseConhecimento || !selectedIdioma) return []
+
+    return baseConhecimento.filter(record => {
+      const matchesLanguage = record.idioma === selectedIdioma
+      const matchesType = selectedTipo === 'todos' || record.tipo_conhecimento === selectedTipo
+      return matchesLanguage && matchesType
+    })
+  }, [baseConhecimento, selectedIdioma, selectedTipo])
+
+  // Get unpracticed records
+  const unpracticedRecords = useMemo(() => {
+    return filteredRecords.filter(record => !practicedRecords.has(record.conhecimento_id))
+  }, [filteredRecords, practicedRecords])
+
+  // Select random field
+  const selectRandomField = (): FieldKey => {
+    const fields: FieldKey[] = ['texto_original', 'transcricao_ipa', 'traducao', 'divisao_silabica']
+    const randomIndex = Math.floor(Math.random() * fields.length)
+    return fields[randomIndex]
+  }
+
+  // Start new exercise
+  const startNewExercise = () => {
+    if (unpracticedRecords.length === 0) {
+      setAllPracticed(true)
+      return
     }
-  }, [availableLanguages, availableTypes, selectedIdioma, selectedTipo])
+
+    // Select random record from unpracticed
+    const randomIndex = Math.floor(Math.random() * unpracticedRecords.length)
+    const selectedRecord = unpracticedRecords[randomIndex]
+
+    // Select random field
+    const selectedField = selectRandomField()
+
+    // Set current exercise
+    setCurrentExercise(selectedRecord)
+    setProvidedField(selectedField)
+
+    // Clear form fields
+    setTextoOriginal('')
+    setTranscricaoIpa('')
+    setTraducao('')
+    setDivisaoSilabica('')
+
+    // Clear results
+    setShowResult(false)
+    setResults([])
+    setAllPracticed(false)
+  }
+
+  // Initial exercise when component mounts or filters change
+  useEffect(() => {
+    if (filteredRecords.length > 0 && !currentExercise && !showResult) {
+      startNewExercise()
+    }
+  }, [filteredRecords])
+
+  // Reset practiced records when type changes
+  useEffect(() => {
+    setPracticedRecords(new Set())
+    setCurrentExercise(null)
+    setShowResult(false)
+    setAllPracticed(false)
+  }, [selectedTipo, selectedIdioma])
 
   // Handle exit button
   const handleExit = () => {
     navigate('/')
   }
 
+  // Map field keys to CampoEnum
+  const fieldKeyToCampoEnum = (key: FieldKey): CampoEnum => {
+    const mapping: Record<FieldKey, CampoEnum> = {
+      'texto_original': 'texto_original' as CampoEnum,
+      'transcricao_ipa': 'transcricao_ipa' as CampoEnum,
+      'traducao': 'traducao' as CampoEnum,
+      'divisao_silabica': 'divisao_silabica' as CampoEnum,
+    }
+    return mapping[key]
+  }
+
   // Handle verify button
-  const handleVerify = () => {
-    // TODO: Implement verification logic
-    console.log('Verificando respostas...', {
-      textoOriginal,
-      transcricaoIpa,
-      traducao,
-      divisaoSilabica
+  const handleVerify = async () => {
+    if (!currentExercise || !providedField) return
+
+    // Collect user inputs
+    const userInputs: Record<FieldKey, string> = {
+      texto_original: textoOriginal,
+      transcricao_ipa: transcricaoIpa,
+      traducao: traducao,
+      divisao_silabica: divisaoSilabica,
+    }
+
+    // Get fields that user filled (excluding the provided field)
+    const filledFields: FieldKey[] = (Object.keys(userInputs) as FieldKey[]).filter(
+      key => key !== providedField && userInputs[key].trim() !== ''
+    )
+
+    // Verify each filled field
+    const fieldResults: FieldResult[] = filledFields.map(field => {
+      const userValue = userInputs[field].trim()
+      const correctValue = (currentExercise[field] as string) || ''
+      const isCorrect = userValue.toLowerCase() === correctValue.toLowerCase()
+
+      return {
+        field,
+        userValue,
+        correctValue,
+        isCorrect,
+      }
     })
+
+    setResults(fieldResults)
+    setShowResult(true)
+
+    // Mark record as practiced
+    setPracticedRecords(prev => new Set([...prev, currentExercise.conhecimento_id]))
+
+    // Save exercise to backend
+    setSaving(true)
+    try {
+      const exercicio: Exercicio = {
+        data_hora: new Date().toISOString(),
+        exercicio_id: crypto.randomUUID(),
+        conhecimento_id: currentExercise.conhecimento_id,
+        idioma: currentExercise.idioma as any,
+        tipo_pratica: 'traducao' as any,
+        resultado_exercicio: {
+          campo_fornecido: fieldKeyToCampoEnum(providedField),
+          campos_preenchidos: filledFields.map(f => fieldKeyToCampoEnum(f)),
+          valores_preenchidos: filledFields.map(f => userInputs[f].trim()),
+          campos_resultados: fieldResults.map(r => r.isCorrect),
+        } as ResultadoTraducao,
+      }
+
+      await postExercicio(exercicio)
+    } catch (error) {
+      console.error('Erro ao salvar exercício:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Handle next exercise
+  const handleNext = () => {
+    startNewExercise()
+  }
+
+  // Get field label in Portuguese
+  const getFieldLabel = (field: FieldKey): string => {
+    const labels: Record<FieldKey, string> = {
+      texto_original: 'Texto Original',
+      transcricao_ipa: 'Transcrição IPA',
+      traducao: 'Tradução',
+      divisao_silabica: 'Divisão Silábica',
+    }
+    return labels[field]
   }
 
   // Loading state
@@ -117,6 +287,141 @@ export default function PraticaTraducao() {
     )
   }
 
+  // All practiced - completion message
+  if (allPracticed) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="text-center">
+              <div className="text-green-600 mb-4">
+                <svg className="mx-auto h-20 w-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">Parabéns!</h2>
+              <p className="text-lg text-gray-700 mb-6">
+                Você já praticou todos os registros disponíveis para{' '}
+                <span className="font-semibold capitalize">
+                  {selectedTipo === 'todos' ? 'todos os tipos' : selectedTipo}
+                </span>
+                {' '}em <span className="font-semibold capitalize">{selectedIdioma}</span>.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => {
+                    setPracticedRecords(new Set())
+                    setAllPracticed(false)
+                    setCurrentExercise(null)
+                  }}
+                  className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  Recomeçar
+                </button>
+                <button
+                  onClick={handleExit}
+                  className="px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Voltar para Home
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Result screen
+  if (showResult && currentExercise) {
+    const correctCount = results.filter(r => r.isCorrect).length
+    const totalCount = results.length
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <Link to="/" className="text-indigo-600 hover:text-indigo-800 font-medium">
+              ← Voltar
+            </Link>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
+              Resultado do Exercício
+            </h1>
+
+            {/* Score */}
+            <div className="mb-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg text-center">
+              <p className="text-lg text-gray-700 mb-2">Você acertou:</p>
+              <p className="text-5xl font-bold text-indigo-600">
+                {correctCount} / {totalCount}
+              </p>
+            </div>
+
+            {/* Field results */}
+            <div className="space-y-4 mb-8">
+              {results.map((result, index) => (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg border-2 ${
+                    result.isCorrect
+                      ? 'bg-green-50 border-green-300'
+                      : 'bg-red-50 border-red-300'
+                  }`}
+                >
+                  <div className="flex items-center mb-2">
+                    {result.isCorrect ? (
+                      <svg className="h-6 w-6 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="h-6 w-6 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    )}
+                    <span className="font-semibold text-gray-800">{getFieldLabel(result.field)}</span>
+                  </div>
+                  <div className="ml-8">
+                    <p className="text-sm text-gray-600">Sua resposta: <span className="font-medium">{result.userValue}</span></p>
+                    {!result.isCorrect && (
+                      <p className="text-sm text-gray-600">Resposta correta: <span className="font-medium text-green-700">{result.correctValue}</span></p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Progress info */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600 text-center">
+                Registros praticados: <span className="font-semibold">{practicedRecords.size}</span> / <span className="font-semibold">{filteredRecords.length}</span>
+              </p>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-4">
+              <button
+                onClick={handleExit}
+                className="flex-1 px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Sair
+              </button>
+              <button
+                onClick={handleNext}
+                disabled={saving}
+                className="flex-1 px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
+              >
+                {unpracticedRecords.length > 0 ? 'Próximo Exercício' : 'Ver Conclusão'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Main exercise screen
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
       <div className="max-w-4xl mx-auto">
@@ -136,17 +441,12 @@ export default function PraticaTraducao() {
             </p>
           </div>
 
-          {/* Language Label */}
-          {selectedIdioma && (
-            <div className="mb-6 p-4 bg-indigo-50 rounded-lg">
-              <span className="text-sm font-medium text-indigo-700 uppercase tracking-wide">
-                Idioma Atual:
-              </span>
-              <span className="ml-3 text-lg font-semibold text-indigo-900 capitalize">
-                {selectedIdioma}
-              </span>
-            </div>
-          )}
+          {/* Progress */}
+          <div className="mb-6 p-4 bg-indigo-50 rounded-lg">
+            <p className="text-sm text-indigo-700">
+              Progresso: <span className="font-semibold">{practicedRecords.size}</span> / <span className="font-semibold">{filteredRecords.length}</span> registros praticados
+            </p>
+          </div>
 
           {/* Selectors */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -176,10 +476,10 @@ export default function PraticaTraducao() {
               </label>
               <select
                 value={selectedTipo}
-                onChange={(e) => setSelectedTipo(e.target.value as TipoConhecimentoEnum)}
+                onChange={(e) => setSelectedTipo(e.target.value as TipoConhecimentoEnum | 'todos')}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
-                <option value="">Selecione um tipo</option>
+                <option value="todos">Todos</option>
                 {availableTypes.map((tipo) => (
                   <option key={tipo} value={tipo} className="capitalize">
                     {tipo}
@@ -189,86 +489,105 @@ export default function PraticaTraducao() {
             </div>
           </div>
 
-          {/* Form Fields */}
-          <form className="space-y-6">
-            {/* Texto Original */}
-            <div>
-              <label htmlFor="texto-original" className="block text-sm font-medium text-gray-700 mb-2">
-                Texto Original
-              </label>
-              <input
-                type="text"
-                id="texto-original"
-                value={textoOriginal}
-                onChange={(e) => setTextoOriginal(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Digite o texto no idioma original"
-              />
-            </div>
+          {currentExercise && providedField && (
+            <>
+              {/* Provided field value */}
+              <div className="mb-6 p-6 bg-green-50 border-2 border-green-300 rounded-lg">
+                <label className="block text-sm font-medium text-green-700 mb-2">
+                  {getFieldLabel(providedField)}
+                </label>
+                <p className="text-2xl font-bold text-green-900">
+                  {currentExercise[providedField] || '(vazio)'}
+                </p>
+              </div>
 
-            {/* Transcrição IPA */}
-            <div>
-              <label htmlFor="transcricao-ipa" className="block text-sm font-medium text-gray-700 mb-2">
-                Transcrição IPA
-              </label>
-              <input
-                type="text"
-                id="transcricao-ipa"
-                value={transcricaoIpa}
-                onChange={(e) => setTranscricaoIpa(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Digite a transcrição fonética (IPA)"
-              />
-            </div>
+              {/* Form Fields - only show fields that are NOT the provided field */}
+              <form className="space-y-6">
+                {providedField !== 'texto_original' && (
+                  <div>
+                    <label htmlFor="texto-original" className="block text-sm font-medium text-gray-700 mb-2">
+                      Texto Original
+                    </label>
+                    <input
+                      type="text"
+                      id="texto-original"
+                      value={textoOriginal}
+                      onChange={(e) => setTextoOriginal(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Digite o texto no idioma original"
+                    />
+                  </div>
+                )}
 
-            {/* Tradução */}
-            <div>
-              <label htmlFor="traducao" className="block text-sm font-medium text-gray-700 mb-2">
-                Tradução
-              </label>
-              <input
-                type="text"
-                id="traducao"
-                value={traducao}
-                onChange={(e) => setTraducao(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Digite a tradução"
-              />
-            </div>
+                {providedField !== 'transcricao_ipa' && (
+                  <div>
+                    <label htmlFor="transcricao-ipa" className="block text-sm font-medium text-gray-700 mb-2">
+                      Transcrição IPA
+                    </label>
+                    <input
+                      type="text"
+                      id="transcricao-ipa"
+                      value={transcricaoIpa}
+                      onChange={(e) => setTranscricaoIpa(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Digite a transcrição fonética (IPA)"
+                    />
+                  </div>
+                )}
 
-            {/* Divisão Silábica */}
-            <div>
-              <label htmlFor="divisao-silabica" className="block text-sm font-medium text-gray-700 mb-2">
-                Divisão Silábica
-              </label>
-              <input
-                type="text"
-                id="divisao-silabica"
-                value={divisaoSilabica}
-                onChange={(e) => setDivisaoSilabica(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Digite a divisão silábica"
-              />
-            </div>
+                {providedField !== 'traducao' && (
+                  <div>
+                    <label htmlFor="traducao" className="block text-sm font-medium text-gray-700 mb-2">
+                      Tradução
+                    </label>
+                    <input
+                      type="text"
+                      id="traducao"
+                      value={traducao}
+                      onChange={(e) => setTraducao(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Digite a tradução"
+                    />
+                  </div>
+                )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-4 pt-4">
-              <button
-                type="button"
-                onClick={handleExit}
-                className="flex-1 px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Sair
-              </button>
-              <button
-                type="button"
-                onClick={handleVerify}
-                className="flex-1 px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                Verificar
-              </button>
-            </div>
-          </form>
+                {providedField !== 'divisao_silabica' && (
+                  <div>
+                    <label htmlFor="divisao-silabica" className="block text-sm font-medium text-gray-700 mb-2">
+                      Divisão Silábica
+                    </label>
+                    <input
+                      type="text"
+                      id="divisao-silabica"
+                      value={divisaoSilabica}
+                      onChange={(e) => setDivisaoSilabica(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Digite a divisão silábica"
+                    />
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={handleExit}
+                    className="flex-1 px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    Sair
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleVerify}
+                    disabled={saving}
+                    className="flex-1 px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
+                  >
+                    {saving ? 'Salvando...' : 'Verificar'}
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </div>
