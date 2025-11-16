@@ -61,9 +61,12 @@ export interface ResultadoDialogo {
 
 export interface ResultadoPronunciaNumeros {
   numero_referencia: string
-  audio_usuario_url: string
-  transcricao_correta: string
-  acertou: boolean
+  texto_usuario?: string
+  texto_correto?: boolean
+  texto_comentario?: string
+  audio_transcricao?: string
+  audio_correto?: boolean
+  audio_comentario?: string
 }
 
 export type ResultadoExercicio =

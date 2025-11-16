@@ -48,6 +48,7 @@ TTS_SERVICE_URL = f"http://localhost:{TTS_SERVICE_PORT}"
 # Configuração do serviço Ollama
 OLLAMA_SERVICE_PORT = int(os.getenv("SERVICO_OLLAMA", 11434))
 OLLAMA_SERVICE_URL = f"http://localhost:{OLLAMA_SERVICE_PORT}"
+OLLAMA_MODEL = os.getenv("MODELO_OLLAMA", "gemma3:1b")
 
 
 # Modelos de dados para TTS
@@ -64,7 +65,7 @@ class OllamaMessage(BaseModel):
 
 
 class OllamaChatRequest(BaseModel):
-    model: str = "gemma3:1b"
+    model: Optional[str] = None  # Se None, usa OLLAMA_MODEL do .env
     messages: List[OllamaMessage]
     stream: bool = False
 
@@ -342,12 +343,17 @@ async def chat_with_ollama(request: OllamaChatRequest):
         HTTPException: Se houver erro na consulta ou serviço indisponível
     """
     try:
+        # Usar modelo da variável de ambiente se não especificado
+        model_to_use = request.model if request.model else OLLAMA_MODEL
+
+        print(f"🤖 Usando modelo Ollama: {model_to_use}")
+
         # Fazer requisição para o serviço Ollama
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
                 f"{OLLAMA_SERVICE_URL}/api/chat",
                 json={
-                    "model": request.model,
+                    "model": model_to_use,
                     "messages": [msg.model_dump() for msg in request.messages],
                     "stream": request.stream
                 }

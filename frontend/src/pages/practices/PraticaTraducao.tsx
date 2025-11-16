@@ -129,13 +129,6 @@ export default function PraticaTraducao() {
     setAllPracticed(false)
   }
 
-  // Initial exercise when component mounts or filters change
-  useEffect(() => {
-    if (filteredRecords.length > 0 && !currentExercise && !showResult) {
-      startNewExercise()
-    }
-  }, [filteredRecords])
-
   // Reset practiced records when type changes
   useEffect(() => {
     setPracticedRecords(new Set())
@@ -143,6 +136,14 @@ export default function PraticaTraducao() {
     setShowResult(false)
     setAllPracticed(false)
   }, [selectedTipo, selectedIdioma])
+
+  // Initial exercise when component mounts or filters change
+  useEffect(() => {
+    if (filteredRecords.length > 0 && !currentExercise && !showResult && !allPracticed) {
+      startNewExercise()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredRecords.length, currentExercise, showResult, allPracticed])
 
   // Handle exit button
   const handleExit = () => {

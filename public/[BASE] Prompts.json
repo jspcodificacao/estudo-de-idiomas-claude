@@ -1,73 +1,95 @@
 {
-  "descricao": "Uma coleção de prompts para tarefas de geração e manipulação de texto.",
-  "data_atualizacao": "2025-11-13T09:00:00Z",
-  "marcador_de_paramentros": "{{param}}",
-  "prompts": [
-    {
-      "prompt_id": "gerador_resumo_v1",
-      "descricao": "Cria um resumo de um texto fornecido pelo usuário, extraindo os pontos principais em formato de lista.",
-      "template": "Por favor, gere um resumo conciso do seguinte texto: '{{texto_completo}}'. O resumo deve ter no máximo {{numero_de_paragrafos}} parágrafos e destacar os pontos-chave.",
-      "parametros": [
-        "texto_completo",
-        "numero_de_paragrafos"
-      ],
-      "resposta_estruturada": true,
-      "estrutura_esperada": {
-        "type": "object",
-        "properties": {
-          "resumo_gerado": {
-            "type": "string",
-            "description": "O texto do resumo."
-          },
-          "pontos_chave": {
-            "type": "array",
-            "items": {
-              "type": "string"
+    "descricao": "Uma coleção de prompts para tarefas de geração e manipulação de texto.",
+    "data_atualizacao": "2025-11-13T09:00:00Z",
+    "marcador_de_paramentros": "{{param}}",
+    "prompts": [
+        {
+            "prompt_id": "dialogo_avaliacao_coerencia",
+            "descricao": "Analisa a coerência entre duas frases de um diálogo.",
+            "template": "Avalie a coerência entre duas frases de um diálogo. As frases estão descritas abaixo. O diálogo ocorreu no idioma {{idioma}}.\n\n<frase1>{{pergunta}}</frase1>\n<frase2>{{resposta}}</frase2>\n\nSua resposta deve ser um JSON com a estrutura abaixo:\n{\n\tcoerente: True|False\n}\nNão inclua nenhuma explicação ou comentário adicional.",
+            "parametros": [
+                "idioma",
+                "pergunta",
+                "resposta"
+            ],
+            "resposta_estruturada": true,
+            "estrutura_esperada": {
+                "type": "object",
+                "properties": {
+                    "coerente": {
+                        "type": "string",
+                        "description": "Resultado da avaliação de coerência."
+                    }
+                },
+                "required": [
+                    "coerente"
+                ]
             },
-            "description": "Uma lista com os principais pontos abordados no texto."
-          }
+            "ultima_edicao": "2025-11-13T08:45:00Z"
         },
-        "required": ["resumo_gerado", "pontos_chave"]
-      },
-      "ultima_edicao": "2025-11-13T08:45:00Z"
-    },
-    {
-      "prompt_id": "tradutor_texto_v2",
-      "descricao": "Traduz um trecho de texto de um idioma de origem para um idioma de destino.",
-      "template": "Traduza o texto '{{texto_original}}' do idioma '{{idioma_origem}}' para o idioma '{{idioma_destino}}'.",
-      "parametros": [
-        "texto_original",
-        "idioma_origem",
-        "idioma_destino"
-      ],
-      "resposta_estruturada": false,
-      "ultima_edicao": "2025-10-28T14:20:00Z"
-    },
-    {
-        "prompt_id": "classificador_sentimento_v1",
-        "descricao": "Analisa o sentimento de um texto e o classifica como positivo, negativo ou neutro, fornecendo uma pontuação.",
-        "template": "Analise o sentimento do seguinte texto e classifique-o: '{{texto_usuario}}'.",
-        "parametros": [
-          "texto_usuario"
-        ],
-        "resposta_estruturada": true,
-        "estrutura_esperada": {
-          "type": "object",
-          "properties": {
-            "sentimento": {
-              "type": "string",
-              "enum": ["positivo", "negativo", "neutro"]
+        {
+            "prompt_id": "dialogo_dados_interlocutor",
+            "descricao": "Recupera dados de um interlocutor a partir da transcição de um diálogo.",
+            "template": "Analise o diálogo em {{idioma}} transcrito abaixo e identifique as características de um determinado interlocutor.\nSua resposta deve ser um JSON com a estrutura abaixo:\n\n{\naltura: string,\nnome: string\nidade:string\npeso: string\n}\nSe uma característca não for identificada, preencha o campo respectivo do JSON com a string 'Não identificado'.\nNão inclua nenhuma explicação ou comentário adicional.\n\nDiálogo:\n{{dialogo}}\n",
+            "parametros": [
+                "idioma",
+                "dialogo"
+            ],
+            "resposta_estruturada": true,
+            "estrutura_esperada": {
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string",
+                        "description": "Nome do interlocutor analisado."
+                    },
+                    "idade": {
+                        "type": "string",
+                        "description": "Idade do interlocutor analisado."
+                    },
+                    "altura": {
+                        "type": "string",
+                        "description": "Altura do interlocutor analisado."
+                    },
+                    "peso": {
+                        "type": "string",
+                        "description": "Peso do interlocutor analisado."
+                    }
+                },
+                "required": [
+                    "nome",
+                    "idade",
+                    "altura",
+                    "peso"
+                ]
             },
-            "pontuacao_confianca": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1,
-              "description": "A pontuação de confiança da classificação do sentimento, variando de 0.0 a 1.0."
-            }
-          },
-          "required": ["sentimento", "pontuacao_confianca"]
+            "ultima_edicao": "2025-11-13T08:45:00Z"
         },
-        "ultima_edicao": "2025-11-10T11:05:00Z"
-      }
-  ]
+		{
+            "prompt_id": "pronuncia_de_numeros",
+            "descricao": "Avalia se a proúncia de um numero está correto.",
+            "template": "Analise se o número {{algarismos}} corresponde ao texto {{transcricao_do_usuario}}. O texto está em {{idioma}}.\n Sua resposta deve ser um JSON com esta estrutura:\n\n{\ncorreto: true|false\n}. Não inclua nenhuma explicação ou comentário adicional.",
+            "parametros": [
+                "idioma",
+                "algarismos",
+				"transcricao_usuario"
+            ],
+            "resposta_estruturada": true,
+            "estrutura_esperada": {
+                "type": "object",
+                "properties": {
+                    "correto": {
+                        "type": "boolean",
+                        "description": "Resultado da avaliação. True ou False."
+                    }
+                },
+                "required": [
+                    "idioma",
+                    "algarismos",
+                    "transcricao_usuario"
+                ]
+            },
+            "ultima_edicao": "2025-11-13T08:45:00Z"			
+		}
+    ]
 }

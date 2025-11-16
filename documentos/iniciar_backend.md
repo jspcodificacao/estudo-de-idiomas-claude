@@ -26,7 +26,7 @@ O backend utiliza variáveis de ambiente definidas no arquivo `.env` na raiz do 
 **Arquivo `.env` (na raiz do projeto):**
 ```env
 BACKEND_PORT=3010
-FRONTEND_PORT=5173
+FRONTEND_PORT=3005
 ```
 
 - `BACKEND_PORT`: Porta onde o servidor backend será executado (padrão: 3010)

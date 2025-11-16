@@ -1,66 +1,157 @@
 {
   "exercicios": [
     {
-      "data_hora": "2025-11-13T09:15:00Z",
-      "exercicio_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
-      "conhecimento_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+      "data_hora": "2025-11-15T13:17:32.744000Z",
+      "exercicio_id": "94102563-647e-4561-a251-547b4bfd9eec",
+      "conhecimento_id": "055fce47-8f37-4fbf-9988-23e4e12cbef6",
       "idioma": "alemao",
       "tipo_pratica": "traducao",
       "resultado_exercicio": {
-        "campo_fornecido": "traducao",
-        "campos_preenchidos": ["texto_original", "transcricao_ipa"],
-        "valores_preenchidos": ["das Mädchen", "/ˈmɛːtçən/"],
-        "campos_resultados": [true, true]
+        "campo_fornecido": "texto_original",
+        "campos_preenchidos": [
+          "transcricao_ipa",
+          "traducao",
+          "divisao_silabica"
+        ],
+        "valores_preenchidos": [
+          "ziːp",
+          "sete",
+          "sieb"
+        ],
+        "campos_resultados": [
+          true,
+          true,
+          true
+        ]
       }
     },
     {
-      "data_hora": "2025-11-12T18:30:00Z",
-      "exercicio_id": "c4d5e6f7-a8b9-c0d1-e2f3-a4b5c6d7e8f9",
-      "conhecimento_id": "b1a2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
-      "idioma": "ingles",
+      "data_hora": "2025-11-15T13:20:15.445000Z",
+      "exercicio_id": "33e67016-47c0-46a2-baf0-86b79ddf1fb8",
+      "conhecimento_id": "cc622bce-41af-4644-9d59-baea92ba3276",
+      "idioma": "alemao",
+      "tipo_pratica": "traducao",
+      "resultado_exercicio": {
+        "campo_fornecido": "transcricao_ipa",
+        "campos_preenchidos": [
+          "texto_original",
+          "traducao",
+          "divisao_silabica"
+        ],
+        "valores_preenchidos": [
+          "Meter",
+          "metro",
+          "Me-ter"
+        ],
+        "campos_resultados": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "data_hora": "2025-11-15T13:22:41.228000Z",
+      "exercicio_id": "92b627a2-df08-4ede-b0cc-12daec1cd415",
+      "conhecimento_id": "23ac4192-ed5b-4e3e-ab2f-c203b63e2f10",
+      "idioma": "alemao",
+      "tipo_pratica": "traducao",
+      "resultado_exercicio": {
+        "campo_fornecido": "texto_original",
+        "campos_preenchidos": [
+          "transcricao_ipa",
+          "traducao",
+          "divisao_silabica"
+        ],
+        "valores_preenchidos": [
+          "'fiːln̩",
+          "muito",
+          "vie-len"
+        ],
+        "campos_resultados": [
+          false,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "data_hora": "2025-11-15T18:04:28.862000Z",
+      "exercicio_id": "d0028e8f-1363-4edc-9967-1396cf8a0a9c",
+      "conhecimento_id": "de1c0496-fb62-4c7c-b3f6-720b2755b47f",
+      "idioma": "alemao",
       "tipo_pratica": "audicao",
       "resultado_exercicio": {
-        "texto_original": "The quick brown fox jumps over the lazy dog.",
-        "transcricao_usuario": "The quick brown fox jumped over the lazy dog.",
+        "texto_original": "Tag",
+        "transcricao_usuario": "Tag",
         "correto": false,
         "velocidade_utilizada": "1.0"
       }
     },
     {
-      "data_hora": "2025-11-11T07:00:00Z",
-      "exercicio_id": "12345678-90ab-cdef-0123-456789abcdef",
-      "conhecimento_id": "fedcba98-7654-3210-fedc-ba9876543210",
+      "data_hora": "2025-11-15T18:16:03.684000Z",
+      "exercicio_id": "2c1ae4a5-c816-4136-a685-65aab1a1678a",
+      "conhecimento_id": "9b14cdde-8bd3-4cf4-8527-61dcdb731485",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "heißen",
+        "transcricao_usuario": "heißen",
+        "correto": true,
+        "velocidade_utilizada": "1.0"
+      }
+    },
+    {
+      "data_hora": "2025-11-15T18:36:36.860000Z",
+      "exercicio_id": "b6e32583-b714-4da0-8a99-a50c5d8131e1",
+      "conhecimento_id": "78d08d2a-fd41-4da4-bb15-d67a02b1ddd2",
       "idioma": "alemao",
       "tipo_pratica": "pronuncia",
       "resultado_exercicio": {
-        "texto_original": "Entschuldigung",
-        "transcricao_stt": "Enchuldegung",
-        "correto": "Parcial",
-        "comentario": "A pronúncia do dígrafo 'tsch' pode ser melhorada."
+        "texto_original": "Jahre",
+        "transcricao_stt": "Ja.",
+        "correto": "Não",
+        "comentario": "Transcrição da sua pronúncia: \"Ja.\". Esperado: \"Jahre\"."
       }
     },
     {
-        "data_hora": "2025-11-10T20:05:10Z",
-        "exercicio_id": "e9f8d7c6-b5a4-3210-e9f8-d7c6b5a43210",
-        "conhecimento_id": "a1b2c3d4-e5f6-7890-a1b2-c3d4e5f67890",
-        "idioma": "ingles",
-        "tipo_pratica": "pronuncia_de_numeros",
-        "resultado_exercicio": {
-          "numero_referencia": "1839",
-          "audio_usuario_url": "https://storage.example.com/audio/1839-user-attempt.mp3",
-          "transcricao_correta": "one thousand eight hundred thirty-nine",
-          "acertou": true
-        }
+      "data_hora": "2025-11-15T18:39:01.488000Z",
+      "exercicio_id": "e9b0067e-3e1d-4ff1-bf66-8c65d4accad9",
+      "conhecimento_id": "094e6387-3d71-4396-831d-f0ee7c010711",
+      "idioma": "alemao",
+      "tipo_pratica": "pronuncia",
+      "resultado_exercicio": {
+        "texto_original": "Abend",
+        "transcricao_stt": "Abenteuer",
+        "correto": "Não",
+        "comentario": "Transcrição da sua pronúncia: \"Abenteuer\". Esperado: \"Abend\"."
+      }
     },
     {
-        "data_hora": "2025-11-09T11:45:00Z",
-        "exercicio_id": "b2c3d4e5-f6a7-8901-b2c3-d4e5f6a78901",
-        "conhecimento_id": "c3d4e5f6-a7b8-9012-c3d4-e5f6a7b89012",
-        "idioma": "alemao",
-        "tipo_pratica": "dialogo",
-        "resultado_exercicio": {
-          "correto": "Sim"
-        }
+      "data_hora": "2025-11-15T18:44:54.127000Z",
+      "exercicio_id": "25c6ca1e-e255-48c1-a530-62fd2b950339",
+      "conhecimento_id": "b487ef33-6126-4071-a2a4-452ceb613c49",
+      "idioma": "alemao",
+      "tipo_pratica": "pronuncia",
+      "resultado_exercicio": {
+        "texto_original": "Nacht",
+        "transcricao_stt": "Na?",
+        "correto": "Não",
+        "comentario": "Transcrição da sua pronúncia: \"Na?\". Esperado: \"Nacht\"."
       }
+    },
+    {
+      "data_hora": "2025-11-15T18:45:36.312000Z",
+      "exercicio_id": "dbb23367-e69a-430e-8117-83fb62e00eab",
+      "conhecimento_id": "cc622bce-41af-4644-9d59-baea92ba3276",
+      "idioma": "alemao",
+      "tipo_pratica": "pronuncia",
+      "resultado_exercicio": {
+        "texto_original": "Meter",
+        "transcricao_stt": "Meta",
+        "correto": "Não",
+        "comentario": "Transcrição da sua pronúncia: \"Meta\". Esperado: \"Meter\"."
+      }
+    }
   ]
 }

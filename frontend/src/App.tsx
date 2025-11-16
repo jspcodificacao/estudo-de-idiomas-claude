@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { DataProvider } from './contexts/DataContext'
 import Home from './pages/Home'
-import NotImplemented from './pages/NotImplemented'
 import HistoricoPage from './pages/HistoricoPage'
 import PromptsPage from './pages/PromptsPage'
 import KnowledgeBasePage from './pages/KnowledgeBasePage'
