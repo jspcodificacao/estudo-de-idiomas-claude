@@ -9,6 +9,7 @@ function PromptsPage() {
   const [editingPromptId, setEditingPromptId] = useState<string | null>(null)
   const [editedPrompt, setEditedPrompt] = useState<PromptItem | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isCreatingNew, setIsCreatingNew] = useState(false)
 
   const loading = dataLoading.prompts
   const error = dataErrors.prompts
@@ -26,13 +27,23 @@ function PromptsPage() {
     setEditingPromptId(null)
     setEditedPrompt(null)
     setHasUnsavedChanges(false)
+    setIsCreatingNew(false)
   }
 
   const handleSave = () => {
     if (editedPrompt && displayData) {
-      const updatedPrompts = displayData.prompts.map(p =>
-        p.prompt_id === editedPrompt.prompt_id ? editedPrompt : p
-      )
+      let updatedPrompts: PromptItem[]
+
+      if (isCreatingNew) {
+        // Add new prompt to the list
+        updatedPrompts = [...displayData.prompts, editedPrompt]
+      } else {
+        // Update existing prompt
+        updatedPrompts = displayData.prompts.map(p =>
+          p.prompt_id === editedPrompt.prompt_id ? editedPrompt : p
+        )
+      }
+
       setPromptsData({
         ...displayData,
         prompts: updatedPrompts,
@@ -41,8 +52,25 @@ function PromptsPage() {
       setEditingPromptId(null)
       setEditedPrompt(null)
       setHasUnsavedChanges(false)
+      setIsCreatingNew(false)
       // TODO: Add API call to save to backend when endpoint is available
     }
+  }
+
+  const handleCreateNew = () => {
+    const newPrompt: PromptItem = {
+      prompt_id: '',
+      descricao: '',
+      template: '',
+      parametros: [],
+      resposta_estruturada: false,
+      estrutura_esperada: undefined,
+      ultima_edicao: new Date().toISOString()
+    }
+    setEditedPrompt(newPrompt)
+    setEditingPromptId('__new__')
+    setIsCreatingNew(true)
+    setHasUnsavedChanges(false)
   }
 
   const handleFieldChange = (field: keyof PromptItem, value: any) => {
@@ -123,9 +151,22 @@ function PromptsPage() {
           >
             ← Voltar
           </Link>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Editar Prompts
-          </h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-4xl font-bold text-gray-800">
+              Editar Prompts
+            </h1>
+            {!isCreatingNew && !editingPromptId && (
+              <button
+                onClick={handleCreateNew}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Novo Prompt
+              </button>
+            )}
+          </div>
           <p className="text-gray-600">
             {displayData.descricao}
           </p>
@@ -136,6 +177,121 @@ function PromptsPage() {
             Marcador de parâmetros: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{displayData.marcador_de_paramentros}</span>
           </p>
         </div>
+
+        {/* New Prompt Form */}
+        {isCreatingNew && editedPrompt && (
+          <div className="bg-white rounded-xl shadow-md p-6 mb-6 border-2 border-green-500">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-800">
+                  Criar Novo Prompt
+                </h2>
+                {hasUnsavedChanges && (
+                  <span className="text-sm text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full">
+                    Campos preenchidos
+                  </span>
+                )}
+              </div>
+
+              {/* Prompt ID */}
+              <div>
+                <label htmlFor="prompt-id-input" className="block text-sm font-medium text-gray-700 mb-2">
+                  ID do Prompt <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="prompt-id-input"
+                  type="text"
+                  value={editedPrompt.prompt_id}
+                  onChange={(e) => handleFieldChange('prompt_id', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="ex: meu_novo_prompt"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Identificador único para este prompt (sem espaços)
+                </p>
+              </div>
+
+              {/* Descrição */}
+              <div>
+                <label htmlFor="descricao-input" className="block text-sm font-medium text-gray-700 mb-2">
+                  Descrição <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="descricao-input"
+                  value={editedPrompt.descricao}
+                  onChange={(e) => handleFieldChange('descricao', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  rows={2}
+                  placeholder="Descreva a finalidade deste prompt"
+                />
+              </div>
+
+              {/* Template */}
+              <div>
+                <label htmlFor="template-input" className="block text-sm font-medium text-gray-700 mb-2">
+                  Template <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="template-input"
+                  value={editedPrompt.template}
+                  onChange={(e) => handleFieldChange('template', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-mono text-sm"
+                  rows={6}
+                  placeholder="Digite o template do prompt. Use {{parametro}} para parâmetros."
+                />
+              </div>
+
+              {/* Parâmetros */}
+              <div>
+                <label htmlFor="parametros-input" className="block text-sm font-medium text-gray-700 mb-2">
+                  Parâmetros (separados por vírgula)
+                </label>
+                <input
+                  id="parametros-input"
+                  type="text"
+                  value={editedPrompt.parametros.join(', ')}
+                  onChange={(e) => handleFieldChange('parametros', e.target.value.split(',').map(p => p.trim()).filter(p => p))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="ex: idioma, texto, numero"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Liste os parâmetros usados no template
+                </p>
+              </div>
+
+              {/* Resposta Estruturada */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="resposta-estruturada"
+                  checked={editedPrompt.resposta_estruturada}
+                  onChange={(e) => handleFieldChange('resposta_estruturada', e.target.checked)}
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <label htmlFor="resposta-estruturada" className="text-sm font-medium text-gray-700">
+                  Espera resposta estruturada (JSON)
+                </label>
+              </div>
+
+              {/* Botões de Ação */}
+              <div className="flex gap-2 pt-4">
+                <button
+                  onClick={handleSave}
+                  disabled={!editedPrompt.prompt_id || !editedPrompt.descricao || !editedPrompt.template}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Criar Prompt
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Prompts List */}
         <div className="space-y-6">
