@@ -1,0 +1,42 @@
+﻿# Crie um componente de teclado virtual reutilizável para uma aplicação de aprendizado de idiomas. 
+
+
+## Objetivo e Funcionalidade Principal
+O componente deve fornecer uma interface para que o usuário possa inserir caracteres especiais em campos de texto da aplicação. Estes caracteres podem ser letras, marcadores e sinais gráficos específicos de um idioma, e também podem ser símbolos e marcadores do Alfabeto Fonético Internacional (IPA). Cada idioma tem seu teclado virtual. A lógica de qual campo de texto está ativo e como o caractere é inserido será gerenciada por um componente pai.
+
+
+## Arquitetura
+- O Teclado Virtual deve ser um componente de apresentação (visual). Ele não deve gerenciar nenhum estado relacionado aos campos de texto.
+- Ao ser invocado, o copomnente recebe o idioma e apresenta as teclas pertinentes.
+- A ação do componente é, somente, criar um evento de tecla “pressionada” (clicada) informando a tecla.
+
+
+## Estrutura Visual e Layout
+-  **Seções de Caracteres:** Organize as teclas nas seguintes seções verticais: "Letras e Marcadores do Idioma", "Vogais IPA", "Consoantes IPA",  “Sinais Diacríticos”, “Traços Suprassegmentais””e "Outros Símbolos IPA". Cada seção deve ter um título e um conjunto de teclas. O conjunto de teclas de cada seção varia de acordo com o idioma.
+-  **Estilo do Título da Seção:** Usar texto pequeno, em maiúsculas. 
+-  **Estilo do caractere dentro do botão:** Usar uma fonte monoespaçada, em tamanho grande.
+
+
+## Conjuntos de Teclas por Idioma
+Neste momento, só há teclado virtual para o idioma alemão.
+
+
+### Idioma Alemão
+-  **Letras e Marcadores do Idioma**: ß.
+-  **Vogais IPA**: ə, ɪ, ɛ, ʏ, ɐ, ʊ, ɔ.
+-  **Consoantes IPA**: ŋ, ʁ, ʒ, ʃ, ɲ.
+-  **Sinais diacríticos:  ̩ ,  ̯ .
+-  **Traços Suprassegmentais: ˈ, ˌ, ː.
+-  **Outros símbolos IPA**: ͡    .
+
+
+#### Regra para o sinal diacrítico **Subscript arch** (̯ ) 
+Este símbolo pode ser aplicado somente às vogais IPA. Por exemplo, ɐ̯ é a aplicação do sinal diacrítico "Subscript arch" à vogal ɐ. Primeiro o usuário digita a vogal e depois o sinal diacrítico. A aplicação deve combinar os dois caracteres resultando nos símbolos ə̯, ɪ̯, ɛ̯, ʏ̯, ɐ̯, ʊ̯, ɔ̯.
+
+
+### Regra para o sinal diacrítico **Syllabicity mark** ( ̩)
+Este símbolo pode ser aplicado somente às conosoantes IPA m, n, ŋ, l, r, ɹ, formando os símbolos m̩, n̩, ŋ̩, l̩, r̩, ɹ̩, respectivamente. Primeiro o usuário digita a consoante e depois digita o sinal "Syllabicity mark".
+
+
+### Regra para o símbolo **Top tie bar** (  ͡   )
+Este símbolo pode ser aplicado somente a duas consoantes seguidas. Primeiro o usuário digita as duas consoantes depois digita o símbolo. Exemplo:  ͡ts.
