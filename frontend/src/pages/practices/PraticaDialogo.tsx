@@ -343,6 +343,11 @@ export default function PraticaDialogo() {
             coherent: isCoherent
           }
         ])
+
+        // Wait a bit to show transcription, then load next phrase
+        setTimeout(() => {
+          handleNextIntermediate()
+        }, 2000) // 2 second delay to show transcription
       }
     } catch (error) {
       console.error('Erro ao verificar coerência:', error)
@@ -716,18 +721,23 @@ export default function PraticaDialogo() {
                   </button>
                 </div>
 
-                {/* User's response bubble (if recorded) */}
-                {recordingState === 'recorded' && audioBlob && (
+                {/* User's response bubble with transcription (if sent and transcribed) */}
+                {currentTranscription && (
                   <div className="flex justify-end">
-                    <button
-                      onClick={playRecording}
-                      className="flex items-center gap-2 px-4 py-3 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 transition-colors"
-                    >
-                      <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                      <span className="text-sm font-medium">0:00:21</span>
-                    </button>
+                    <div className="max-w-[75%]">
+                      <button
+                        onClick={playRecording}
+                        className="flex items-center gap-2 px-4 py-3 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 transition-colors mb-2"
+                      >
+                        <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <span className="text-sm font-medium">0:00:21</span>
+                      </button>
+                      <div className="bg-green-100 text-gray-800 text-sm p-2 rounded-lg">
+                        {currentTranscription}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -764,9 +774,20 @@ export default function PraticaDialogo() {
                   </>
                 )}
 
-                {recordingState === 'recorded' && audioBlob && !currentTranscription && (
+                {recordingState === 'recorded' && audioBlob && (
                   <>
-                    <span className="text-gray-600">Gravação pronta (0:21)</span>
+                    <button
+                      onClick={clearRecording}
+                      className="px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-full shadow-md hover:bg-orange-600 transition-colors"
+                    >
+                      Gravar Novamente
+                    </button>
+                    <button
+                      onClick={playRecording}
+                      className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-full shadow-md hover:bg-blue-600 transition-colors"
+                    >
+                      Ouvir
+                    </button>
                     <button
                       onClick={
                         dialogueStage === 'greeting' ? handleConfirmGreeting :
@@ -781,15 +802,6 @@ export default function PraticaDialogo() {
                       </svg>
                     </button>
                   </>
-                )}
-
-                {currentTranscription && dialogueStage === 'intermediate' && (
-                  <button
-                    onClick={handleNextIntermediate}
-                    className="px-6 py-3 bg-blue-500 text-white font-medium rounded-full shadow-lg hover:bg-blue-600 transition-colors"
-                  >
-                    Continuar
-                  </button>
                 )}
               </div>
             </>
