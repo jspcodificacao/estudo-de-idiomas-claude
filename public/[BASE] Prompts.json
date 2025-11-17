@@ -1,153 +1,124 @@
 {
-    "descricao": "Uma coleção de prompts para tarefas de geração e manipulação de texto.",
-    "data_atualizacao": "2025-11-13T09:00:00Z",
-    "marcador_de_paramentros": "{{param}}",
-    "prompts": [
-        {
-            "prompt_id": "dialogo_avaliacao_coerencia",
-            "descricao": "Analisa a coerência entre duas frases de um diálogo.",
-            "template": "Avalie a coerência entre duas frases de um diálogo. As frases estão descritas abaixo. O diálogo ocorreu no idioma {{idioma}}.\n\n<frase1>{{pergunta}}</frase1>\n<frase2>{{resposta}}</frase2>\n\nSua resposta deve ser um JSON com a estrutura abaixo:\n{\n\tcoerente: True|False\n}\nNão inclua nenhuma explicação ou comentário adicional.",
-            "parametros": [
-                "idioma",
-                "pergunta",
-                "resposta"
-            ],
-            "resposta_estruturada": true,
-            "estrutura_esperada": {
-                "type": "object",
-                "properties": {
-                    "coerente": {
-                        "type": "string",
-                        "description": "Resultado da avaliação de coerência."
-                    }
-                },
-                "required": [
-                    "coerente"
-                ]
-            },
-            "ultima_edicao": "2025-11-13T08:45:00Z"
+  "descricao": "Uma coleção de prompts para tarefas de geração e manipulação de texto.",
+  "data_atualizacao": "2025-11-17T17:21:11.117000Z",
+  "marcador_de_paramentros": "{{param}}",
+  "prompts": [
+    {
+      "prompt_id": "dialogo_avaliacao_coerencia",
+      "descricao": "Analisa a coerência entre duas frases de um diálogo.",
+      "template": "Avalie a coerência entre duas frases de um diálogo. As frases estão descritas abaixo. O diálogo ocorreu no idioma {{idioma}}.\n\n<frase1>{{pergunta}}</frase1>\n<frase2>{{resposta}}</frase2>\n\nSua resposta deve ser um JSON com a estrutura abaixo:\n{\n\tcoerente: True|False\n}\nNão inclua nenhuma explicação ou comentário adicional.",
+      "parametros": [
+        "idioma",
+        "pergunta",
+        "resposta"
+      ],
+      "resposta_estruturada": true,
+      "estrutura_esperada": {
+        "type": "object",
+        "properties": {
+          "coerente": {
+            "type": "string",
+            "description": "Resultado da avaliação de coerência."
+          }
         },
-        {
-            "prompt_id": "dialogo_dados_interlocutor",
-            "descricao": "Recupera dados de um interlocutor a partir da transcição de um diálogo.",
-            "template": "Analise o diálogo em {{idioma}} transcrito abaixo e identifique as características de um determinado interlocutor.\nSua resposta deve ser um JSON com a estrutura abaixo:\n\n{\naltura: string,\nnome: string\nidade:string\npeso: string\n}\nSe uma característca não for identificada, preencha o campo respectivo do JSON com a string 'Não identificado'.\nNão inclua nenhuma explicação ou comentário adicional.\n\nDiálogo:\n{{dialogo}}\n",
-            "parametros": [
-                "idioma",
-                "dialogo"
-            ],
-            "resposta_estruturada": true,
-            "estrutura_esperada": {
-                "type": "object",
-                "properties": {
-                    "nome": {
-                        "type": "string",
-                        "description": "Nome do interlocutor analisado."
-                    },
-                    "idade": {
-                        "type": "string",
-                        "description": "Idade do interlocutor analisado."
-                    },
-                    "altura": {
-                        "type": "string",
-                        "description": "Altura do interlocutor analisado."
-                    },
-                    "peso": {
-                        "type": "string",
-                        "description": "Peso do interlocutor analisado."
-                    }
-                },
-                "required": [
-                    "nome",
-                    "idade",
-                    "altura",
-                    "peso"
-                ]
-            },
-            "ultima_edicao": "2025-11-13T08:45:00Z"
+        "required": [
+          "coerente"
+        ]
+      },
+      "ultima_edicao": "2025-11-13T08:45:00Z"
+    },
+    {
+      "prompt_id": "dialogo_dados_interlocutor",
+      "descricao": "Recupera dados de um interlocutor a partir da transcição de um diálogo.",
+      "template": "Analise o diálogo em {{idioma}} transcrito abaixo e identifique as características de um determinado interlocutor.\nSua resposta deve ser um JSON com a estrutura abaixo:\n\n{\naltura: string,\nnome: string\nidade:string\npeso: string\n}\nSe uma característca não for identificada, preencha o campo respectivo do JSON com a string 'Não identificado'.\nNão inclua nenhuma explicação ou comentário adicional.\n\nDiálogo:\n{{dialogo}}\n",
+      "parametros": [
+        "idioma",
+        "dialogo"
+      ],
+      "resposta_estruturada": true,
+      "estrutura_esperada": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome do interlocutor analisado."
+          },
+          "idade": {
+            "type": "string",
+            "description": "Idade do interlocutor analisado."
+          },
+          "altura": {
+            "type": "string",
+            "description": "Altura do interlocutor analisado."
+          },
+          "peso": {
+            "type": "string",
+            "description": "Peso do interlocutor analisado."
+          }
         },
-		{
-            "prompt_id": "pronuncia_de_numeros",
-            "descricao": "Avalia se a proúncia de um numero está correto.",
-            "template": "Analise se o número {{algarismos}} corresponde ao texto {{transcricao_do_usuario}}. O texto está em {{idioma}}.\n Sua resposta deve ser um JSON com esta estrutura:\n\n{\ncorreto: true|false\n}. Não inclua nenhuma explicação ou comentário adicional.",
-            "parametros": [
-                "idioma",
-                "algarismos",
-				"transcricao_usuario"
-            ],
-            "resposta_estruturada": true,
-            "estrutura_esperada": {
-                "type": "object",
-                "properties": {
-                    "correto": {
-                        "type": "boolean",
-                        "description": "Resultado da avaliação. True ou False."
-                    }
-                },
-                "required": [
-                    "idioma",
-                    "algarismos",
-                    "transcricao_usuario"
-                ]
-            },
-            "ultima_edicao": "2025-11-13T08:45:00Z"
-		},
-		{
-            "prompt_id": "numeros_verificar_texto",
-            "descricao": "Verifica se o texto escrito pelo usuário corresponde ao número em algarismos.",
-            "template": "Você é um professor de {{idioma}}. Um aluno escreveu o número {{numero}} por extenso como: '{{texto_usuario}}'.\n\nAvalie se o texto está correto e forneça um comentário educativo.\n\nSua resposta deve ser um JSON com esta estrutura:\n{\n  \"correto\": true|false,\n  \"comentario\": \"Seu comentário aqui\"\n}\n\nNão inclua nenhuma explicação ou comentário adicional fora do JSON.",
-            "parametros": [
-                "idioma",
-                "numero",
-				"texto_usuario"
-            ],
-            "resposta_estruturada": true,
-            "estrutura_esperada": {
-                "type": "object",
-                "properties": {
-                    "correto": {
-                        "type": "boolean",
-                        "description": "Se o texto está correto"
-                    },
-                    "comentario": {
-                        "type": "string",
-                        "description": "Comentário educativo sobre a resposta"
-                    }
-                },
-                "required": [
-                    "correto",
-                    "comentario"
-                ]
-            },
-            "ultima_edicao": "2025-11-17T15:45:00Z"
-		},
-		{
-            "prompt_id": "numeros_verificar_audio",
-            "descricao": "Verifica se a transcrição do áudio corresponde ao número em algarismos.",
-            "template": "Você é um professor de {{idioma}}. Um aluno pronunciou o número {{numero}} e o sistema transcreveu como: '{{transcricao_audio}}'.\n\nAvalie se a pronúncia (baseada na transcrição) está correta e forneça um comentário educativo.\n\nSua resposta deve ser um JSON com esta estrutura:\n{\n  \"correto\": true|false,\n  \"comentario\": \"Seu comentário aqui\"\n}\n\nNão inclua nenhuma explicação ou comentário adicional fora do JSON.",
-            "parametros": [
-                "idioma",
-                "numero",
-				"transcricao_audio"
-            ],
-            "resposta_estruturada": true,
-            "estrutura_esperada": {
-                "type": "object",
-                "properties": {
-                    "correto": {
-                        "type": "boolean",
-                        "description": "Se a pronúncia está correta"
-                    },
-                    "comentario": {
-                        "type": "string",
-                        "description": "Comentário educativo sobre a pronúncia"
-                    }
-                },
-                "required": [
-                    "correto",
-                    "comentario"
-                ]
-            },
-            "ultima_edicao": "2025-11-17T15:45:00Z"
-		}
-    ]
+        "required": [
+          "nome",
+          "idade",
+          "altura",
+          "peso"
+        ]
+      },
+      "ultima_edicao": "2025-11-13T08:45:00Z"
+    },
+    {
+      "prompt_id": "pronuncia_de_numeros",
+      "descricao": "Avalia se a proúncia de um numero está correto.",
+      "template": "Analise se o número {{algarismos}} corresponde ao texto {{transcricao_do_usuario}}. O texto está em {{idioma}}.\n Sua resposta deve ser um JSON com esta estrutura:\n\n{\ncorreto: true|false\n}. Não inclua nenhuma explicação ou comentário adicional.",
+      "parametros": [
+        "idioma",
+        "algarismos",
+        "transcricao_usuario"
+      ],
+      "resposta_estruturada": true,
+      "estrutura_esperada": {
+        "type": "object",
+        "properties": {
+          "correto": {
+            "type": "boolean",
+            "description": "Resultado da avaliação. True ou False."
+          }
+        },
+        "required": [
+          "idioma",
+          "algarismos",
+          "transcricao_usuario"
+        ]
+      },
+      "ultima_edicao": "2025-11-13T08:45:00Z"
+    },
+    {
+      "prompt_id": "numeros_verificar_texto",
+      "descricao": "Verifica se o texto escrito ou o áudio transcrito do usuário corresponde ao número em algarismos.",
+      "template": "No idioma {{idioma}}, '{{texto_usuario}}' é equivalente ao número {{numero}}?\n\nSua resposta deve ser um JSON com esta estrutura:\n{\n  \"equivalente\": true|false\n}\n\nNão inclua nenhuma explicação ou comentário adicional fora do JSON.",
+      "parametros": [
+        "idioma",
+        "numero",
+        "texto_usuario"
+      ],
+      "resposta_estruturada": true,
+      "estrutura_esperada": {
+        "type": "object",
+        "properties": {
+          "correto": {
+            "type": "boolean",
+            "description": "Se o texto está correto"
+          },
+          "comentario": {
+            "type": "string",
+            "description": "Comentário educativo sobre a resposta"
+          }
+        },
+        "required": [
+          "correto",
+          "comentario"
+        ]
+      },
+      "ultima_edicao": "2025-11-17T15:45:00Z"
+    }
+  ]
 }

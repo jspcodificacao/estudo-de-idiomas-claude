@@ -255,12 +255,24 @@ export default function PraticaDialogo() {
   }, [frasesDialogo, dialogueStage, currentPhrase])
 
   // Handle confirm for greeting
-  const handleConfirmGreeting = () => {
+  const handleConfirmGreeting = async () => {
     // Don't process greeting audio, just move to intermediate phase
     setDialogueStage('intermediate')
     clearRecording()
     setAudioData(null)
     setCurrentPhrase('')
+
+    // Load first intermediate phrase
+    if (!frasesDialogo) return
+
+    const randomIndex = Math.floor(Math.random() * frasesDialogo.intermediarias.length)
+    const selectedPhrase = frasesDialogo.intermediarias[randomIndex]
+    setIntermediatePhrasesUsed(new Set([randomIndex]))
+
+    setCurrentPhrase(selectedPhrase)
+    const audio = await generatePhraseAudio(selectedPhrase, true)
+    setAudioData(audio)
+    setDialogueHistory(prev => [...prev, { speaker: 'app', text: selectedPhrase }])
   }
 
   // Handle confirm for intermediate
