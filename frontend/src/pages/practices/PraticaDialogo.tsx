@@ -264,23 +264,29 @@ export default function PraticaDialogo() {
 
   // Handle confirm for greeting
   const handleConfirmGreeting = async () => {
-    // Don't process greeting audio, just move to intermediate phase
-    setDialogueStage('intermediate')
-    clearRecording()
-    setAudioData(null)
-    setCurrentPhrase('')
-
-    // Load first intermediate phrase
     if (!frasesDialogo) return
 
-    const randomIndex = Math.floor(Math.random() * frasesDialogo.intermediarias.length)
-    const selectedPhrase = frasesDialogo.intermediarias[randomIndex]
-    setIntermediatePhrasesUsed(new Set([randomIndex]))
+    try {
+      // Don't process greeting audio, just move to intermediate phase
+      setGeneratingAudio(true)
+      setDialogueStage('intermediate')
+      clearRecording()
 
-    setCurrentPhrase(selectedPhrase)
-    const audio = await generatePhraseAudio(selectedPhrase, true)
-    setAudioData(audio)
-    setDialogueHistory(prev => [...prev, { speaker: 'app', text: selectedPhrase }])
+      // Load first intermediate phrase
+      const randomIndex = Math.floor(Math.random() * frasesDialogo.intermediarias.length)
+      const selectedPhrase = frasesDialogo.intermediarias[randomIndex]
+      setIntermediatePhrasesUsed(new Set([randomIndex]))
+
+      setCurrentPhrase(selectedPhrase)
+      const audio = await generatePhraseAudio(selectedPhrase, true)
+      setAudioData(audio)
+      setDialogueHistory(prev => [...prev, { speaker: 'app', text: selectedPhrase }])
+    } catch (error) {
+      console.error('Erro ao carregar frase intermediária:', error)
+      alert('Erro ao carregar a próxima frase. Verifique se o serviço TTS está rodando.')
+    } finally {
+      setGeneratingAudio(false)
+    }
   }
 
   // Handle confirm for intermediate
