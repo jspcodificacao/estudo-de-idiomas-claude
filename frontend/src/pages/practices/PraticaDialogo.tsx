@@ -666,40 +666,42 @@ export default function PraticaDialogo() {
             <>
               {/* Audio Bubbles - WhatsApp Style */}
               <div className="min-h-[60vh] bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
-                {/* Previous exchanges from history */}
+                {/* Only show completed exchanges (pairs of app + user messages) */}
                 {dialogueHistory.map((msg, idx) => {
+                  // Only show messages that have been responded to
+                  // Skip the last app message if there's no user response after it
                   if (msg.speaker === 'app') {
-                    // App audio bubble - left aligned, blue
+                    // Check if there's a user response after this app message
+                    const hasUserResponse = dialogueHistory[idx + 1]?.speaker === 'user'
+                    if (!hasUserResponse) return null // Skip this app message, it's the current one
+
+                    // Previous app audio bubble - left aligned, blue (disabled/played)
                     return (
                       <div key={`app-${idx}`} className="flex justify-start">
-                        <button
-                          className="flex items-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-colors"
-                        >
+                        <div className="flex items-center gap-2 px-4 py-3 bg-blue-400 text-white rounded-full shadow-md opacity-80">
                           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z"/>
                           </svg>
                           <span className="text-sm font-medium">0:00{Math.floor(Math.random() * 60)}</span>
-                        </button>
+                        </div>
                       </div>
                     )
                   } else {
                     // User audio bubble - right aligned, green
                     return (
                       <div key={`user-${idx}`} className="flex justify-end">
-                        <button
-                          className="flex items-center gap-2 px-4 py-3 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 transition-colors"
-                        >
+                        <div className="flex items-center gap-2 px-4 py-3 bg-green-400 text-white rounded-full shadow-md opacity-80">
                           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z"/>
                           </svg>
                           <span className="text-sm font-medium">0:000:04</span>
-                        </button>
+                        </div>
                       </div>
                     )
                   }
                 })}
 
-                {/* Current App Audio Bubble */}
+                {/* Current App Audio Bubble - Active/Clickable */}
                 <div className="flex justify-start">
                   <button
                     onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
