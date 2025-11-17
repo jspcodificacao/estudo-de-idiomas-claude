@@ -631,15 +631,24 @@ export default function PraticaDialogo() {
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
-              Prática de Diálogo
-            </h1>
-            <p className="text-gray-600">
-              {dialogueStage === 'greeting' && 'Ouça a saudação e responda'}
-              {dialogueStage === 'intermediate' && 'Continue o diálogo'}
-              {dialogueStage === 'farewell' && 'Ouça a despedida e responda'}
-            </p>
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                Prática de Diálogo
+              </h1>
+              <p className="text-gray-600">
+                {dialogueStage === 'greeting' && 'Ouça a saudação e responda'}
+                {dialogueStage === 'intermediate' && 'Continue o diálogo'}
+                {dialogueStage === 'farewell' && 'Ouça a despedida e responda'}
+              </p>
+            </div>
+            <button
+              onClick={handleExit}
+              className="px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
+              disabled={recordingState === 'recording'}
+            >
+              Sair
+            </button>
           </div>
 
           {/* Language selector (only at start) */}
@@ -666,68 +675,116 @@ export default function PraticaDialogo() {
             </div>
           ) : currentPhrase && audioData ? (
             <>
-              {/* Dialogue History */}
+              {/* Dialogue History - Chat Style */}
               {dialogueHistory.length > 0 && (
-                <div className="mb-4 max-h-64 overflow-y-auto space-y-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="text-xs font-semibold text-gray-500 mb-2 sticky top-0 bg-gray-50">HISTÓRICO</h3>
-                  {dialogueHistory.map((msg, idx) => (
-                    <div
-                      key={idx}
-                      className={`p-2 rounded text-sm ${
-                        msg.speaker === 'app'
-                          ? 'bg-blue-100 border border-blue-200'
-                          : msg.coherent === true
-                          ? 'bg-green-100 border border-green-200'
-                          : msg.coherent === false
-                          ? 'bg-red-100 border border-red-200'
-                          : 'bg-gray-100 border border-gray-200'
-                      }`}
-                    >
-                      <span className="font-semibold text-xs">
-                        {msg.speaker === 'app' ? '🤖 App: ' : '👤 Você: '}
-                      </span>
-                      <span>{msg.text}</span>
-                      {msg.coherent === true && <span className="ml-2 text-green-600">✓</span>}
-                      {msg.coherent === false && <span className="ml-2 text-red-600">✗</span>}
-                    </div>
-                  ))}
+                <div className="mb-4 max-h-96 overflow-y-auto p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <h3 className="text-xs font-semibold text-gray-500 mb-3 sticky top-0 bg-gray-50">💬 CONVERSAÇÃO</h3>
+                  <div className="space-y-3">
+                    {dialogueHistory.map((msg, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex ${msg.speaker === 'app' ? 'justify-start' : 'justify-end'}`}
+                      >
+                        <div
+                          className={`max-w-[75%] p-2 rounded-lg text-sm ${
+                            msg.speaker === 'app'
+                              ? 'bg-blue-100 border border-blue-300 rounded-tl-none'
+                              : msg.coherent === true
+                              ? 'bg-green-100 border border-green-300 rounded-tr-none'
+                              : msg.coherent === false
+                              ? 'bg-red-100 border border-red-300 rounded-tr-none'
+                              : 'bg-gray-200 border border-gray-300 rounded-tr-none'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1 mb-1">
+                            <span className="text-xs font-semibold">
+                              {msg.speaker === 'app' ? '🤖' : '👤'}
+                            </span>
+                            {msg.coherent === true && <span className="text-green-600 text-xs">✓</span>}
+                            {msg.coherent === false && <span className="text-red-600 text-xs">✗</span>}
+                          </div>
+                          <span>{msg.text}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {/* Current Phrase - Compact */}
-              <div className="mb-3 p-3 bg-blue-50 border border-blue-300 rounded">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold text-blue-700">🤖 APLICAÇÃO</label>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
-                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
-                      title="Play Normal"
-                    >
-                      ▶
-                    </button>
-                    {audioData.lento ? (
+              {/* Current Phrase - Only for intermediate stage */}
+              {dialogueStage === 'intermediate' && (
+                <div className="mb-3 p-3 bg-blue-50 border border-blue-300 rounded">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-semibold text-blue-700">🤖 APLICAÇÃO</label>
+                    <div className="flex gap-1">
                       <button
-                        onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
-                        className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
-                        title="Play Lento"
+                        onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
+                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                        title="Play Normal"
                       >
-                        ▶🐌
+                        ▶
                       </button>
-                    ) : (
+                      {audioData.lento ? (
+                        <button
+                          onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
+                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
+                          title="Play Lento"
+                        >
+                          ▶🐌
+                        </button>
+                      ) : (
+                        <button
+                          onClick={generateSlowAudio}
+                          disabled={generatingSlowAudio}
+                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
+                          title="Gerar Lento"
+                        >
+                          {generatingSlowAudio ? '...' : '🐌'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-800">{currentPhrase}</p>
+                </div>
+              )}
+
+              {/* Audio controls for greeting and farewell - no text shown */}
+              {(dialogueStage === 'greeting' || dialogueStage === 'farewell') && (
+                <div className="mb-3 p-3 bg-blue-50 border border-blue-300 rounded">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-blue-700">
+                      {dialogueStage === 'greeting' ? '🤖 Ouça a saudação' : '🤖 Ouça a despedida'}
+                    </label>
+                    <div className="flex gap-1">
                       <button
-                        onClick={generateSlowAudio}
-                        disabled={generatingSlowAudio}
-                        className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
-                        title="Gerar Lento"
+                        onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
+                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                        title="Play Normal"
                       >
-                        {generatingSlowAudio ? '...' : '🐌'}
+                        ▶
                       </button>
-                    )}
+                      {audioData.lento ? (
+                        <button
+                          onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
+                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
+                          title="Play Lento"
+                        >
+                          ▶🐌
+                        </button>
+                      ) : (
+                        <button
+                          onClick={generateSlowAudio}
+                          disabled={generatingSlowAudio}
+                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
+                          title="Gerar Lento"
+                        >
+                          {generatingSlowAudio ? '...' : '🐌'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <p className="text-sm text-gray-800">{currentPhrase}</p>
-              </div>
+              )}
 
               {/* User's Response - Compact */}
               <div className="mb-3 p-3 bg-gray-50 border border-gray-300 rounded">
@@ -830,17 +887,6 @@ export default function PraticaDialogo() {
                   </div>
                 )}
               </div>
-
-              {/* Exit button */}
-              {!currentTranscription && (
-                <button
-                  onClick={handleExit}
-                  className="w-full px-3 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
-                  disabled={recordingState === 'recording'}
-                >
-                  Sair
-                </button>
-              )}
             </>
           ) : null}
         </div>
