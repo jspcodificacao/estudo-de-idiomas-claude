@@ -89,7 +89,65 @@
                     "transcricao_usuario"
                 ]
             },
-            "ultima_edicao": "2025-11-13T08:45:00Z"			
+            "ultima_edicao": "2025-11-13T08:45:00Z"
+		},
+		{
+            "prompt_id": "numeros_verificar_texto",
+            "descricao": "Verifica se o texto escrito pelo usuário corresponde ao número em algarismos.",
+            "template": "Você é um professor de {{idioma}}. Um aluno escreveu o número {{numero}} por extenso como: '{{texto_usuario}}'.\n\nAvalie se o texto está correto e forneça um comentário educativo.\n\nSua resposta deve ser um JSON com esta estrutura:\n{\n  \"correto\": true|false,\n  \"comentario\": \"Seu comentário aqui\"\n}\n\nNão inclua nenhuma explicação ou comentário adicional fora do JSON.",
+            "parametros": [
+                "idioma",
+                "numero",
+				"texto_usuario"
+            ],
+            "resposta_estruturada": true,
+            "estrutura_esperada": {
+                "type": "object",
+                "properties": {
+                    "correto": {
+                        "type": "boolean",
+                        "description": "Se o texto está correto"
+                    },
+                    "comentario": {
+                        "type": "string",
+                        "description": "Comentário educativo sobre a resposta"
+                    }
+                },
+                "required": [
+                    "correto",
+                    "comentario"
+                ]
+            },
+            "ultima_edicao": "2025-11-17T15:45:00Z"
+		},
+		{
+            "prompt_id": "numeros_verificar_audio",
+            "descricao": "Verifica se a transcrição do áudio corresponde ao número em algarismos.",
+            "template": "Você é um professor de {{idioma}}. Um aluno pronunciou o número {{numero}} e o sistema transcreveu como: '{{transcricao_audio}}'.\n\nAvalie se a pronúncia (baseada na transcrição) está correta e forneça um comentário educativo.\n\nSua resposta deve ser um JSON com esta estrutura:\n{\n  \"correto\": true|false,\n  \"comentario\": \"Seu comentário aqui\"\n}\n\nNão inclua nenhuma explicação ou comentário adicional fora do JSON.",
+            "parametros": [
+                "idioma",
+                "numero",
+				"transcricao_audio"
+            ],
+            "resposta_estruturada": true,
+            "estrutura_esperada": {
+                "type": "object",
+                "properties": {
+                    "correto": {
+                        "type": "boolean",
+                        "description": "Se a pronúncia está correta"
+                    },
+                    "comentario": {
+                        "type": "string",
+                        "description": "Comentário educativo sobre a pronúncia"
+                    }
+                },
+                "required": [
+                    "correto",
+                    "comentario"
+                ]
+            },
+            "ultima_edicao": "2025-11-17T15:45:00Z"
 		}
     ]
 }
