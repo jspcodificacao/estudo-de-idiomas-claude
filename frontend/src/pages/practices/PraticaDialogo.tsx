@@ -675,21 +675,19 @@ export default function PraticaDialogo() {
             </div>
           ) : currentPhrase && audioData ? (
             <>
-              {/* Dialogue History - Chat Style */}
-              {dialogueHistory.length > 0 && (
+              {/* Dialogue History - Only User Responses */}
+              {dialogueHistory.filter(msg => msg.speaker === 'user').length > 0 && (
                 <div className="mb-4 max-h-96 overflow-y-auto p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="text-xs font-semibold text-gray-500 mb-3 sticky top-0 bg-gray-50">💬 CONVERSAÇÃO</h3>
+                  <h3 className="text-xs font-semibold text-gray-500 mb-3 sticky top-0 bg-gray-50">👤 SUAS RESPOSTAS</h3>
                   <div className="space-y-3">
-                    {dialogueHistory.map((msg, idx) => (
+                    {dialogueHistory.filter(msg => msg.speaker === 'user').map((msg, idx) => (
                       <div
                         key={idx}
-                        className={`flex ${msg.speaker === 'app' ? 'justify-start' : 'justify-end'}`}
+                        className="flex justify-end"
                       >
                         <div
-                          className={`max-w-[75%] p-2 rounded-lg text-sm ${
-                            msg.speaker === 'app'
-                              ? 'bg-blue-100 border border-blue-300 rounded-tl-none'
-                              : msg.coherent === true
+                          className={`max-w-[85%] p-2 rounded-lg text-sm ${
+                            msg.coherent === true
                               ? 'bg-green-100 border border-green-300 rounded-tr-none'
                               : msg.coherent === false
                               ? 'bg-red-100 border border-red-300 rounded-tr-none'
@@ -697,11 +695,9 @@ export default function PraticaDialogo() {
                           }`}
                         >
                           <div className="flex items-center gap-1 mb-1">
-                            <span className="text-xs font-semibold">
-                              {msg.speaker === 'app' ? '🤖' : '👤'}
-                            </span>
-                            {msg.coherent === true && <span className="text-green-600 text-xs">✓</span>}
-                            {msg.coherent === false && <span className="text-red-600 text-xs">✗</span>}
+                            <span className="text-xs font-semibold">👤</span>
+                            {msg.coherent === true && <span className="text-green-600 text-xs">✓ Coerente</span>}
+                            {msg.coherent === false && <span className="text-red-600 text-xs">✗ Não coerente</span>}
                           </div>
                           <span>{msg.text}</span>
                         </div>
