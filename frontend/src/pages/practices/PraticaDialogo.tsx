@@ -664,18 +664,16 @@ export default function PraticaDialogo() {
             </div>
           ) : currentPhrase && audioData ? (
             <>
-              {/* Audio Bubbles - WhatsApp Style */}
-              <div className="min-h-[60vh] bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
-                {/* Only show completed exchanges (pairs of app + user messages) */}
+              {/* Audio Bubbles - Scrollable Vertical List */}
+              <div className="max-h-[65vh] bg-gray-50 rounded-lg p-4 mb-4 space-y-3 overflow-y-auto">
+                {/* All messages stacked vertically */}
                 {dialogueHistory.map((msg, idx) => {
-                  // Only show messages that have been responded to
-                  // Skip the last app message if there's no user response after it
                   if (msg.speaker === 'app') {
                     // Check if there's a user response after this app message
                     const hasUserResponse = dialogueHistory[idx + 1]?.speaker === 'user'
-                    if (!hasUserResponse) return null // Skip this app message, it's the current one
+                    if (!hasUserResponse) return null // Skip - it's the current message shown below
 
-                    // Previous app audio bubble - left aligned, blue (disabled/played)
+                    // Previous app audio bubble - left aligned, blue
                     return (
                       <div key={`app-${idx}`} className="flex justify-start">
                         <div className="flex items-center gap-2 px-4 py-3 bg-blue-400 text-white rounded-full shadow-md opacity-80">
@@ -713,6 +711,21 @@ export default function PraticaDialogo() {
                     <span className="text-sm font-medium">0:0{Math.floor(Math.random() * 10)}:{String(Math.floor(Math.random() * 60)).padStart(2, '0')}</span>
                   </button>
                 </div>
+
+                {/* User's response bubble (if recorded) */}
+                {recordingState === 'recorded' && audioBlob && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={playRecording}
+                      className="flex items-center gap-2 px-4 py-3 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 transition-colors"
+                    >
+                      <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                      <span className="text-sm font-medium">0:00:21</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Recording Controls - Bottom Fixed */}
