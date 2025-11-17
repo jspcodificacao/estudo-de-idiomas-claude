@@ -675,78 +675,79 @@ export default function PraticaDialogo() {
             </div>
           ) : currentPhrase && audioData ? (
             <>
-              {/* Dialogue History - Only User Responses */}
-              {dialogueHistory.filter(msg => msg.speaker === 'user').length > 0 && (
-                <div className="mb-4 max-h-96 overflow-y-auto p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="text-xs font-semibold text-gray-500 mb-3 sticky top-0 bg-gray-50">👤 SUAS RESPOSTAS</h3>
-                  <div className="space-y-3">
-                    {dialogueHistory.filter(msg => msg.speaker === 'user').map((msg, idx) => (
-                      <div
-                        key={idx}
-                        className="flex justify-end"
-                      >
-                        <div
-                          className={`max-w-[85%] p-2 rounded-lg text-sm ${
-                            msg.coherent === true
-                              ? 'bg-green-100 border border-green-300 rounded-tr-none'
-                              : msg.coherent === false
-                              ? 'bg-red-100 border border-red-300 rounded-tr-none'
-                              : 'bg-gray-200 border border-gray-300 rounded-tr-none'
-                          }`}
-                        >
-                          <div className="flex items-center gap-1 mb-1">
-                            <span className="text-xs font-semibold">👤</span>
-                            {msg.coherent === true && <span className="text-green-600 text-xs">✓ Coerente</span>}
-                            {msg.coherent === false && <span className="text-red-600 text-xs">✗ Não coerente</span>}
-                          </div>
-                          <span>{msg.text}</span>
-                        </div>
+              {/* Vertical Chat Flow - All Exchanges */}
+              <div className="space-y-3">
+                {/* Previous completed exchanges from history */}
+                {dialogueHistory.map((msg, idx) => {
+                  if (msg.speaker === 'app') {
+                    // App message card (previous exchanges)
+                    return (
+                      <div key={`app-${idx}`} className="p-3 bg-blue-50 border border-blue-300 rounded">
+                        <label className="text-xs font-semibold text-blue-700">🤖 Aplicação</label>
+                        <p className="text-xs text-gray-500 mt-1 italic">Áudio reproduzido</p>
                       </div>
-                    ))}
+                    )
+                  } else {
+                    // User response card (previous exchanges)
+                    return (
+                      <div key={`user-${idx}`} className={`p-3 border rounded ${
+                        msg.coherent === true
+                          ? 'bg-green-50 border-green-300'
+                          : msg.coherent === false
+                          ? 'bg-red-50 border-red-300'
+                          : 'bg-gray-50 border-gray-300'
+                      }`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs font-semibold text-gray-700">👤 Você</label>
+                          {msg.coherent === true && <span className="text-green-600 text-xs font-semibold">✓ Coerente</span>}
+                          {msg.coherent === false && <span className="text-red-600 text-xs font-semibold">✗ Não coerente</span>}
+                        </div>
+                        <p className="text-sm text-gray-800">{msg.text}</p>
+                      </div>
+                    )
+                  }
+                })}
+
+                {/* Current App Card */}
+                <div className="p-3 bg-blue-50 border border-blue-300 rounded">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-blue-700">
+                      {dialogueStage === 'greeting' && '🤖 Ouça a saudação'}
+                      {dialogueStage === 'intermediate' && '🤖 Ouça a frase'}
+                      {dialogueStage === 'farewell' && '🤖 Ouça a despedida'}
+                    </label>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
+                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                        title="Play Normal"
+                      >
+                        ▶
+                      </button>
+                      {audioData.lento ? (
+                        <button
+                          onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
+                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
+                          title="Play Lento"
+                        >
+                          ▶🐌
+                        </button>
+                      ) : (
+                        <button
+                          onClick={generateSlowAudio}
+                          disabled={generatingSlowAudio}
+                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
+                          title="Gerar Lento"
+                        >
+                          {generatingSlowAudio ? '...' : '🐌'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              )}
 
-              {/* Audio controls - No text shown (listening practice) */}
-              <div className="mb-3 p-3 bg-blue-50 border border-blue-300 rounded">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-blue-700">
-                    {dialogueStage === 'greeting' && '🤖 Ouça a saudação'}
-                    {dialogueStage === 'intermediate' && '🤖 Ouça a frase'}
-                    {dialogueStage === 'farewell' && '🤖 Ouça a despedida'}
-                  </label>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
-                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
-                      title="Play Normal"
-                    >
-                      ▶
-                    </button>
-                    {audioData.lento ? (
-                      <button
-                        onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
-                        className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
-                        title="Play Lento"
-                      >
-                        ▶🐌
-                      </button>
-                    ) : (
-                      <button
-                        onClick={generateSlowAudio}
-                        disabled={generatingSlowAudio}
-                        className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
-                        title="Gerar Lento"
-                      >
-                        {generatingSlowAudio ? '...' : '🐌'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* User's Response - Compact */}
-              <div className="mb-3 p-3 bg-gray-50 border border-gray-300 rounded">
+                {/* Current User Response Card */}
+                <div className="p-3 bg-gray-50 border border-gray-300 rounded">
                 <label className="block text-xs font-semibold text-gray-700 mb-2">👤 SUA RESPOSTA</label>
 
                 {recordingState === 'idle' && (
@@ -845,6 +846,7 @@ export default function PraticaDialogo() {
                     </button>
                   </div>
                 )}
+              </div>
               </div>
             </>
           ) : null}
