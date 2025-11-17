@@ -269,6 +269,10 @@ export default function PraticaDialogo() {
     try {
       // Don't process greeting audio, just move to intermediate phase
       setGeneratingAudio(true)
+
+      // Add user's greeting response to history (dummy entry for display)
+      setDialogueHistory(prev => [...prev, { speaker: 'user', text: '[Saudação gravada]' }])
+
       setDialogueStage('intermediate')
       clearRecording()
 
@@ -669,12 +673,9 @@ export default function PraticaDialogo() {
                 {/* All messages stacked vertically */}
                 {dialogueHistory.map((msg, idx) => {
                   if (msg.speaker === 'app') {
-                    // Check if this is the current message (last app message without response)
+                    // Only show if there's a user response after (completed exchange)
                     const hasUserResponse = dialogueHistory[idx + 1]?.speaker === 'user'
-                    const isFirstMessage = idx === 0 // Always show first message (greeting)
-                    const isCurrentMessage = !hasUserResponse && !isFirstMessage
-
-                    if (isCurrentMessage) return null // Skip - it's shown as current below
+                    if (!hasUserResponse) return null // Current message, shown below
 
                     // Previous app audio bubble - left aligned, blue
                     return (
