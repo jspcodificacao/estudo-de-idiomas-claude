@@ -81,6 +81,35 @@ export async function postExercicio(exercicio: Exercicio): Promise<BaseHistorico
   }
 }
 
+export async function updatePrompts(prompts: BasePrompts): Promise<BasePrompts> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/prompts`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(prompts),
+    })
+
+    if (!response.ok) {
+      throw new ApiError(
+        `Erro ao salvar prompts: ${response.statusText}`,
+        response.status,
+        response.statusText
+      )
+    }
+
+    return await response.json()
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error
+    }
+    throw new ApiError(
+      error instanceof Error ? error.message : 'Erro desconhecido ao salvar prompts'
+    )
+  }
+}
+
 export interface GenerateAudioRequest {
   text: string
   voice?: string

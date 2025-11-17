@@ -124,6 +124,29 @@ class ValidadorJSON:
         dados = self._carregar_json("[BASE] Frases do Diálogo.json")
         return BaseFrasesDialogo(**dados)
 
+    def salvar_prompts(self, prompts: BasePrompts) -> BasePrompts:
+        """
+        Salva a base de prompts atualizada.
+
+        Args:
+            prompts: Objeto BasePrompts a ser salvo
+
+        Returns:
+            Objeto BasePrompts salvo
+
+        Raises:
+            ValidationError: Se a validação falhar
+            IOError: Se houver erro ao salvar o arquivo
+        """
+        # Validar o objeto antes de salvar
+        prompts_validados = BasePrompts(**prompts.model_dump(mode='json'))
+
+        # Salvar prompts atualizados
+        dados = prompts_validados.model_dump(mode='json')
+        self._salvar_json("[BASE] Prompts.json", dados)
+
+        return prompts_validados
+
     def adicionar_exercicio(self, exercicio: Exercicio) -> BaseHistoricoPratica:
         """
         Adiciona um novo exercício ao histórico de prática.

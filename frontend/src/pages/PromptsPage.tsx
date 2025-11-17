@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../contexts/DataContext'
+import { updatePrompts } from '../services/api'
 import type { BasePrompts, PromptItem } from '../types/api'
 
 function PromptsPage() {
@@ -30,7 +31,7 @@ function PromptsPage() {
     setIsCreatingNew(false)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editedPrompt && displayData) {
       let updatedPrompts: PromptItem[]
 
@@ -44,16 +45,28 @@ function PromptsPage() {
         )
       }
 
-      setPromptsData({
+      const newPromptsData: BasePrompts = {
         ...displayData,
         prompts: updatedPrompts,
         data_atualizacao: new Date().toISOString()
-      })
-      setEditingPromptId(null)
-      setEditedPrompt(null)
-      setHasUnsavedChanges(false)
-      setIsCreatingNew(false)
-      // TODO: Add API call to save to backend when endpoint is available
+      }
+
+      try {
+        // Save to backend
+        await updatePrompts(newPromptsData)
+
+        // Update local state after successful save
+        setPromptsData(newPromptsData)
+        setEditingPromptId(null)
+        setEditedPrompt(null)
+        setHasUnsavedChanges(false)
+        setIsCreatingNew(false)
+
+        alert('Prompts salvos com sucesso!')
+      } catch (error) {
+        console.error('Erro ao salvar prompts:', error)
+        alert('Erro ao salvar prompts. Verifique o console para mais detalhes.')
+      }
     }
   }
 

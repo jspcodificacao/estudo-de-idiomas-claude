@@ -25,9 +25,10 @@ class TestRootEndpoint:
         data = response.json()
         assert data["mensagem"] == "API de Estudo de Idiomas"
         assert "endpoints" in data
-        assert len(data["endpoints"]) == 2  # GET e POST
+        assert len(data["endpoints"]) == 3  # GET, POST e PUT
         assert "GET" in data["endpoints"]
         assert "POST" in data["endpoints"]
+        assert "PUT" in data["endpoints"]
 
 
 class TestBaseConhecimentoEndpoint:

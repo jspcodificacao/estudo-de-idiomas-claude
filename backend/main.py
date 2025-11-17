@@ -88,6 +88,9 @@ async def root():
                 "/api/generate-audio - Gerar áudio a partir de texto (TTS)",
                 "/api/transcrever-audio - Transcrever áudio em texto (STT)",
                 "/api/chat - Consultar LLM via Ollama"
+            ],
+            "PUT": [
+                "/api/prompts - Atualizar e salvar prompts"
             ]
         }
     }
@@ -135,6 +138,30 @@ async def obter_prompts():
         raise HTTPException(status_code=422, detail=f"Erro de validação: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+
+
+@app.put("/api/prompts", response_model=BasePrompts)
+async def atualizar_prompts(prompts: BasePrompts):
+    """
+    Endpoint para atualizar e salvar os prompts.
+
+    Args:
+        prompts: Objeto BasePrompts com os prompts atualizados
+
+    Returns:
+        Objeto BasePrompts salvo
+
+    Raises:
+        HTTPException: Com status 422 se houver erro de validação
+        HTTPException: Com status 500 para outros erros
+    """
+    try:
+        prompts_salvos = validador.salvar_prompts(prompts)
+        return prompts_salvos
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=f"Erro de validação: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao salvar prompts: {str(e)}")
 
 
 @app.get("/api/historico_de_pratica", response_model=BaseHistoricoPratica)
