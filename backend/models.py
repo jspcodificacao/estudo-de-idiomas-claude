@@ -119,16 +119,19 @@ class ResultadoDialogo(BaseModel):
 class ResultadoPronunciaNumeros(BaseModel):
     """Resultado para exercício de pronúncia de números."""
     numero_referencia: str
-    audio_usuario_url: str = Field(..., pattern=r'^https?://')
-    transcricao_correta: str
-    acertou: bool
+    texto_usuario: Optional[str] = None
+    texto_correto: Optional[bool] = None
+    texto_comentario: Optional[str] = None
+    audio_transcricao: Optional[str] = None
+    audio_correto: Optional[bool] = None
+    audio_comentario: Optional[str] = None
 
 
 class Exercicio(BaseModel):
     """Modelo para um exercício de prática."""
     data_hora: datetime = Field(..., description="Data e hora em que o exercício foi realizado")
     exercicio_id: UUID = Field(..., description="Identificador único para o registro do exercício")
-    conhecimento_id: UUID = Field(..., description="Identificador único para o conhecimento sendo praticado")
+    conhecimento_id: str = Field(..., description="Identificador para o conhecimento sendo praticado (UUID ou string)")
     idioma: IdiomaEnum = Field(..., description="O idioma que está sendo praticado")
     tipo_pratica: TipoPraticaEnum = Field(..., description="O tipo de exercício de prática realizado")
     resultado_exercicio: Any = Field(..., description="Resultados detalhados do exercício")
