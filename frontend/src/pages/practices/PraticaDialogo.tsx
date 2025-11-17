@@ -711,80 +711,43 @@ export default function PraticaDialogo() {
                 </div>
               )}
 
-              {/* Current Phrase - Only for intermediate stage */}
-              {dialogueStage === 'intermediate' && (
-                <div className="mb-3 p-3 bg-blue-50 border border-blue-300 rounded">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-semibold text-blue-700">🤖 APLICAÇÃO</label>
-                    <div className="flex gap-1">
+              {/* Audio controls - No text shown (listening practice) */}
+              <div className="mb-3 p-3 bg-blue-50 border border-blue-300 rounded">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-blue-700">
+                    {dialogueStage === 'greeting' && '🤖 Ouça a saudação'}
+                    {dialogueStage === 'intermediate' && '🤖 Ouça a frase'}
+                    {dialogueStage === 'farewell' && '🤖 Ouça a despedida'}
+                  </label>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
+                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                      title="Play Normal"
+                    >
+                      ▶
+                    </button>
+                    {audioData.lento ? (
                       <button
-                        onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
-                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
-                        title="Play Normal"
+                        onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
+                        className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
+                        title="Play Lento"
                       >
-                        ▶
+                        ▶🐌
                       </button>
-                      {audioData.lento ? (
-                        <button
-                          onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
-                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
-                          title="Play Lento"
-                        >
-                          ▶🐌
-                        </button>
-                      ) : (
-                        <button
-                          onClick={generateSlowAudio}
-                          disabled={generatingSlowAudio}
-                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
-                          title="Gerar Lento"
-                        >
-                          {generatingSlowAudio ? '...' : '🐌'}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-800">{currentPhrase}</p>
-                </div>
-              )}
-
-              {/* Audio controls for greeting and farewell - no text shown */}
-              {(dialogueStage === 'greeting' || dialogueStage === 'farewell') && (
-                <div className="mb-3 p-3 bg-blue-50 border border-blue-300 rounded">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-blue-700">
-                      {dialogueStage === 'greeting' ? '🤖 Ouça a saudação' : '🤖 Ouça a despedida'}
-                    </label>
-                    <div className="flex gap-1">
+                    ) : (
                       <button
-                        onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
-                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
-                        title="Play Normal"
+                        onClick={generateSlowAudio}
+                        disabled={generatingSlowAudio}
+                        className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
+                        title="Gerar Lento"
                       >
-                        ▶
+                        {generatingSlowAudio ? '...' : '🐌'}
                       </button>
-                      {audioData.lento ? (
-                        <button
-                          onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
-                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
-                          title="Play Lento"
-                        >
-                          ▶🐌
-                        </button>
-                      ) : (
-                        <button
-                          onClick={generateSlowAudio}
-                          disabled={generatingSlowAudio}
-                          className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
-                          title="Gerar Lento"
-                        >
-                          {generatingSlowAudio ? '...' : '🐌'}
-                        </button>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* User's Response - Compact */}
               <div className="mb-3 p-3 bg-gray-50 border border-gray-300 rounded">
