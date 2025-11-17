@@ -669,9 +669,12 @@ export default function PraticaDialogo() {
                 {/* All messages stacked vertically */}
                 {dialogueHistory.map((msg, idx) => {
                   if (msg.speaker === 'app') {
-                    // Check if there's a user response after this app message
+                    // Check if this is the current message (last app message without response)
                     const hasUserResponse = dialogueHistory[idx + 1]?.speaker === 'user'
-                    if (!hasUserResponse) return null // Skip - it's the current message shown below
+                    const isFirstMessage = idx === 0 // Always show first message (greeting)
+                    const isCurrentMessage = !hasUserResponse && !isFirstMessage
+
+                    if (isCurrentMessage) return null // Skip - it's shown as current below
 
                     // Previous app audio bubble - left aligned, blue
                     return (
