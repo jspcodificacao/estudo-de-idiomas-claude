@@ -660,109 +660,129 @@ export default function PraticaDialogo() {
           )}
 
           {generatingAudio ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Gerando áudios...</p>
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-3"></div>
+              <p className="text-gray-600 text-sm">Gerando áudios...</p>
             </div>
           ) : currentPhrase && audioData ? (
             <>
-              {/* App's message card */}
-              <div className="mb-6 p-6 bg-blue-50 border-2 border-blue-300 rounded-lg">
-                <label className="block text-sm font-medium text-blue-700 mb-3">
-                  Aplicação
-                </label>
-
-                {/* Audio players */}
-                <div className="space-y-3">
-                  <button
-                    onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
-                    className="w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Play Normal
-                  </button>
-
-                  {audioData.lento ? (
-                    <button
-                      onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
-                      className="w-full px-6 py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 transition-colors flex items-center justify-center gap-2"
+              {/* Dialogue History */}
+              {dialogueHistory.length > 0 && (
+                <div className="mb-4 max-h-64 overflow-y-auto space-y-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <h3 className="text-xs font-semibold text-gray-500 mb-2 sticky top-0 bg-gray-50">HISTÓRICO</h3>
+                  {dialogueHistory.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-2 rounded text-sm ${
+                        msg.speaker === 'app'
+                          ? 'bg-blue-100 border border-blue-200'
+                          : msg.coherent === true
+                          ? 'bg-green-100 border border-green-200'
+                          : msg.coherent === false
+                          ? 'bg-red-100 border border-red-200'
+                          : 'bg-gray-100 border border-gray-200'
+                      }`}
                     >
-                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Play Lento
-                    </button>
-                  ) : (
-                    <button
-                      onClick={generateSlowAudio}
-                      disabled={generatingSlowAudio}
-                      className="w-full px-6 py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
-                    >
-                      {generatingSlowAudio ? 'Gerando...' : 'Gerar Play Lento'}
-                    </button>
-                  )}
+                      <span className="font-semibold text-xs">
+                        {msg.speaker === 'app' ? '🤖 App: ' : '👤 Você: '}
+                      </span>
+                      <span>{msg.text}</span>
+                      {msg.coherent === true && <span className="ml-2 text-green-600">✓</span>}
+                      {msg.coherent === false && <span className="ml-2 text-red-600">✗</span>}
+                    </div>
+                  ))}
                 </div>
+              )}
+
+              {/* Current Phrase - Compact */}
+              <div className="mb-3 p-3 bg-blue-50 border border-blue-300 rounded">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-semibold text-blue-700">🤖 APLICAÇÃO</label>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => playAudio(audioData.normal.audioBase64, audioData.normal.mimeType)}
+                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                      title="Play Normal"
+                    >
+                      ▶
+                    </button>
+                    {audioData.lento ? (
+                      <button
+                        onClick={() => playAudio(audioData.lento!.audioBase64, audioData.lento!.mimeType)}
+                        className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
+                        title="Play Lento"
+                      >
+                        ▶🐌
+                      </button>
+                    ) : (
+                      <button
+                        onClick={generateSlowAudio}
+                        disabled={generatingSlowAudio}
+                        className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors disabled:bg-gray-400"
+                        title="Gerar Lento"
+                      >
+                        {generatingSlowAudio ? '...' : '🐌'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <p className="text-sm text-gray-800">{currentPhrase}</p>
               </div>
 
-              {/* User's response card */}
-              <div className="mb-6 p-6 bg-gray-50 border-2 border-gray-300 rounded-lg">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Sua Resposta
-                </label>
+              {/* User's Response - Compact */}
+              <div className="mb-3 p-3 bg-gray-50 border border-gray-300 rounded">
+                <label className="block text-xs font-semibold text-gray-700 mb-2">👤 SUA RESPOSTA</label>
 
-                {/* Recording controls */}
                 {recordingState === 'idle' && (
                   <button
                     onClick={startRecording}
-                    className="w-full px-6 py-4 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                    className="w-full px-3 py-2 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
                   >
-                    <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
                       <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
                     </svg>
-                    Gravar Resposta
+                    Gravar
                   </button>
                 )}
 
                 {recordingState === 'recording' && (
                   <div>
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="animate-pulse h-4 w-4 bg-red-600 rounded-full mr-2"></div>
-                      <span className="text-red-600 font-semibold">Gravando...</span>
+                    <div className="flex items-center justify-center mb-2">
+                      <div className="animate-pulse h-3 w-3 bg-red-600 rounded-full mr-2"></div>
+                      <span className="text-red-600 font-semibold text-sm">Gravando...</span>
                     </div>
                     <button
                       onClick={stopRecording}
-                      className="w-full px-6 py-4 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
+                      className="w-full px-3 py-2 bg-gray-600 text-white text-sm font-medium rounded hover:bg-gray-700 transition-colors"
                     >
-                      Parar Gravação
+                      Parar
                     </button>
                   </div>
                 )}
 
                 {recordingState === 'recorded' && audioBlob && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-center mb-2">
-                      <svg className="h-6 w-6 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-center mb-1">
+                      <svg className="h-4 w-4 text-green-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-green-600 font-semibold">Gravação concluída</span>
+                      <span className="text-green-600 font-semibold text-xs">Gravado</span>
                     </div>
-                    <button
-                      onClick={playRecording}
-                      className="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      Ouvir
-                    </button>
-                    <button
-                      onClick={clearRecording}
-                      className="w-full px-6 py-3 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition-colors"
-                    >
-                      Gravar Novamente
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={playRecording}
+                        className="flex-1 px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
+                      >
+                        Ouvir
+                      </button>
+                      <button
+                        onClick={clearRecording}
+                        className="flex-1 px-3 py-2 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 transition-colors"
+                      >
+                        Regravar
+                      </button>
+                    </div>
                     <button
                       onClick={
                         dialogueStage === 'greeting' ? handleConfirmGreeting :
@@ -770,40 +790,40 @@ export default function PraticaDialogo() {
                         handleConfirmFarewell
                       }
                       disabled={verifying || analyzingDialogue}
-                      className="w-full px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
+                      className="w-full px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
                     >
                       {verifying ? 'Verificando...' : analyzingDialogue ? 'Analisando...' : 'Confirmar'}
                     </button>
                   </div>
                 )}
 
-                {/* Show transcription and coherence for intermediate phrases */}
+                {/* Show transcription and coherence */}
                 {dialogueStage === 'intermediate' && currentTranscription && (
-                  <div className="mt-4 p-4 bg-white border-2 border-gray-300 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Transcrição:</p>
-                    <p className="text-gray-900 mb-3">{currentTranscription}</p>
+                  <div className="mt-3 p-2 bg-white border border-gray-300 rounded">
+                    <p className="text-xs font-medium text-gray-700 mb-1">Transcrição:</p>
+                    <p className="text-sm text-gray-900 mb-2">{currentTranscription}</p>
                     {currentCoherence !== null && (
-                      <div className={`flex items-center ${currentCoherence ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`flex items-center text-xs mb-2 ${currentCoherence ? 'text-green-600' : 'text-red-600'}`}>
                         {currentCoherence ? (
                           <>
-                            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
-                            <span className="font-semibold">Resposta coerente</span>
+                            <span className="font-semibold">Coerente</span>
                           </>
                         ) : (
                           <>
-                            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                            <span className="font-semibold">Resposta não coerente</span>
+                            <span className="font-semibold">Não coerente</span>
                           </>
                         )}
                       </div>
                     )}
                     <button
                       onClick={handleNextIntermediate}
-                      className="mt-4 w-full px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                      className="w-full px-3 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700 transition-colors"
                     >
                       Próxima Frase
                     </button>
@@ -815,7 +835,7 @@ export default function PraticaDialogo() {
               {!currentTranscription && (
                 <button
                   onClick={handleExit}
-                  className="w-full px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
+                  className="w-full px-3 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
                   disabled={recordingState === 'recording'}
                 >
                   Sair
