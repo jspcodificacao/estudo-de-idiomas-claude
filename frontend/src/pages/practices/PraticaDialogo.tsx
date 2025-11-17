@@ -221,6 +221,14 @@ export default function PraticaDialogo() {
   const cleanJsonResponse = (text: string): string => {
     let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
     cleaned = cleaned.trim()
+
+    // Fix common LLM JSON mistakes
+    // 1. Add quotes around unquoted property names
+    cleaned = cleaned.replace(/(\{|\,)\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
+    // 2. Replace True/False with true/false
+    cleaned = cleaned.replace(/:\s*True\b/g, ': true')
+    cleaned = cleaned.replace(/:\s*False\b/g, ': false')
+
     return cleaned
   }
 
