@@ -201,8 +201,10 @@ export default function PraticaNumeros() {
           console.log('🤖 Resposta LLM (texto):', cleanedResponse)
 
           const resultJson = JSON.parse(cleanedResponse)
-          result.texto_correto = resultJson.correto
-          result.texto_comentario = resultJson.comentario
+          result.texto_correto = resultJson.equivalente
+          result.texto_comentario = resultJson.equivalente
+            ? 'Correto! Você escreveu o número corretamente.'
+            : 'Incorreto. Revise como escrever este número.'
         }
       }
 
@@ -216,12 +218,12 @@ export default function PraticaNumeros() {
 
         console.log('📝 Transcrição:', transcricao)
 
-        // Then verify with LLM
-        const promptTemplate = getPromptTemplate('numeros_verificar_audio')
+        // Then verify with LLM using the same prompt as text
+        const promptTemplate = getPromptTemplate('numeros_verificar_texto')
         if (promptTemplate) {
           const prompt = replacePromptParams(promptTemplate, {
             numero: currentNumber.toString(),
-            transcricao_audio: transcricao,
+            texto_usuario: transcricao,
             idioma: getIdiomaDisplayName(selectedIdioma)
           })
 
@@ -236,8 +238,10 @@ export default function PraticaNumeros() {
           console.log('🤖 Resposta LLM (áudio):', cleanedResponse)
 
           const resultJson = JSON.parse(cleanedResponse)
-          result.audio_correto = resultJson.correto
-          result.audio_comentario = resultJson.comentario
+          result.audio_correto = resultJson.equivalente
+          result.audio_comentario = resultJson.equivalente
+            ? 'Correto! Sua pronúncia está correta.'
+            : 'Incorreto. Revise a pronúncia deste número.'
         }
       }
 
