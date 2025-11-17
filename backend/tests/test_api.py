@@ -112,6 +112,15 @@ class TestPromptsEndpoint:
             response = client.get("/api/prompts")
             assert response.status_code == 422
 
+    def test_get_prompts_erro_interno(self, client):
+        """Testa erro 500 para erros internos genéricos."""
+        with patch('main.validador.validar_prompts') as mock_validar:
+            mock_validar.side_effect = Exception("Erro inesperado")
+
+            response = client.get("/api/prompts")
+            assert response.status_code == 500
+            assert "interno" in response.json()["detail"].lower()
+
 
 class TestHistoricoPraticaEndpoint:
     """Testes para o endpoint /api/historico_de_pratica."""
@@ -148,6 +157,15 @@ class TestHistoricoPraticaEndpoint:
             response = client.get("/api/historico_de_pratica")
             assert response.status_code == 422
 
+    def test_get_historico_erro_interno(self, client):
+        """Testa erro 500 para erros internos genéricos."""
+        with patch('main.validador.validar_historico_pratica') as mock_validar:
+            mock_validar.side_effect = Exception("Erro inesperado")
+
+            response = client.get("/api/historico_de_pratica")
+            assert response.status_code == 500
+            assert "interno" in response.json()["detail"].lower()
+
 
 class TestFrasesDialogoEndpoint:
     """Testes para o endpoint /api/frases_do_dialogo."""
@@ -182,6 +200,15 @@ class TestFrasesDialogoEndpoint:
 
             response = client.get("/api/frases_do_dialogo")
             assert response.status_code == 422
+
+    def test_get_frases_dialogo_erro_interno(self, client):
+        """Testa erro 500 para erros internos genéricos."""
+        with patch('main.validador.validar_frases_dialogo') as mock_validar:
+            mock_validar.side_effect = Exception("Erro inesperado")
+
+            response = client.get("/api/frases_do_dialogo")
+            assert response.status_code == 500
+            assert "interno" in response.json()["detail"].lower()
 
 
 class TestPostHistoricoPraticaEndpoint:
@@ -234,3 +261,12 @@ class TestPostHistoricoPraticaEndpoint:
             response = client.post("/api/historico_de_pratica", json=exercicio_valido)
             assert response.status_code == 422
             assert "validação" in response.json()["detail"].lower()
+
+    def test_post_exercicio_erro_interno(self, client, exercicio_valido):
+        """Testa erro 500 para erros internos genéricos."""
+        with patch('main.validador.adicionar_exercicio') as mock_adicionar:
+            mock_adicionar.side_effect = Exception("Erro inesperado")
+
+            response = client.post("/api/historico_de_pratica", json=exercicio_valido)
+            assert response.status_code == 500
+            assert "interno" in response.json()["detail"].lower()

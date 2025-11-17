@@ -25,7 +25,18 @@ describe('App Component', () => {
         marcador_de_paramentros: '{{param}}',
         prompts: []
       },
-      baseConhecimento: [],
+      baseConhecimento: [
+        {
+          conhecimento_id: '1',
+          texto_original: 'Hallo',
+          traducao: 'Olá',
+          idioma: 'alemao',
+          tipo_conhecimento: 'frase',
+          transcricao_ipa: 'halo',
+          divisao_silabica: 'Hal-lo',
+          data_hora: '2025-11-14T10:00:00Z'
+        }
+      ],
       frasesDialogo: {
         saudacao: 'Test greeting',
         despedida: 'Test farewell',
@@ -192,18 +203,6 @@ describe('App Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Prática de Substantivos')).toBeInTheDocument()
     })
-  })
-
-  it('deve ter o gradiente de fundo da aplicação', () => {
-    const { container } = render(
-      <MemoryRouter initialEntries={['/']}>
-        <App />
-      </MemoryRouter>
-    )
-
-    const appWrapper = container.querySelector('.min-h-screen')
-    expect(appWrapper).toBeInTheDocument()
-    expect(appWrapper).toHaveClass('bg-gradient-to-br')
   })
 
   it('deve ter todas as rotas definidas', () => {

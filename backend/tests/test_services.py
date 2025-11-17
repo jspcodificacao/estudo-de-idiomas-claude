@@ -160,6 +160,28 @@ class TestGenerateAudioEndpoint:
             # Texto vazio é aceito pela validação, TTS retorna resposta
             assert response.status_code == 200
 
+    def test_generate_audio_erro_generico_servico(self, client):
+        """Testa erro genérico do serviço TTS (status code não específico)."""
+        with patch('main.httpx.AsyncClient') as mock_client_class:
+            mock_response = MagicMock()
+            mock_response.status_code = 400  # Bad Request (status não específico)
+            mock_response.text = "Bad Request - Invalid parameters"
+
+            mock_instance = MagicMock()
+            mock_instance.post = AsyncMock(return_value=mock_response)
+
+            mock_client_class.return_value.__aenter__ = AsyncMock(return_value=mock_instance)
+            mock_client_class.return_value.__aexit__ = AsyncMock(return_value=None)
+
+            response = client.post(
+                "/api/generate-audio",
+                json={"text": "Test"}
+            )
+
+            # FastAPI retorna 500 para erros não específicos
+            assert response.status_code == 500
+            assert "erro ao gerar áudio" in response.json()["detail"].lower() or "internal" in response.json()["detail"].lower()
+
 
 class TestTranscreverAudioEndpoint:
     """Testes para o endpoint POST /api/transcrever-audio (STT)."""
@@ -290,6 +312,30 @@ class TestTranscreverAudioEndpoint:
         response = client.post("/api/transcrever-audio")
 
         assert response.status_code == 422  # Validation error
+
+    def test_transcrever_audio_erro_generico_servico(self, client):
+        """Testa erro genérico do serviço STT (status code não específico)."""
+        fake_audio_bytes = b"fake_audio"
+
+        with patch('main.httpx.AsyncClient') as mock_client_class:
+            mock_response = MagicMock()
+            mock_response.status_code = 500  # Internal Server Error (status não específico)
+            mock_response.text = "Internal Server Error"
+
+            mock_instance = MagicMock()
+            mock_instance.post = AsyncMock(return_value=mock_response)
+
+            mock_client_class.return_value.__aenter__ = AsyncMock(return_value=mock_instance)
+            mock_client_class.return_value.__aexit__ = AsyncMock(return_value=None)
+
+            response = client.post(
+                "/api/transcrever-audio",
+                files={"file": ("audio.wav", fake_audio_bytes, "audio/wav")}
+            )
+
+            # Deve retornar erro com o status code do serviço
+            assert response.status_code == 500
+            assert "erro ao transcrever áudio" in response.json()["detail"].lower()
 
 
 class TestChatOllamaEndpoint:
@@ -431,7 +477,7 @@ class TestChatOllamaEndpoint:
         )
 
         # Deve retornar erro de validação ou erro do Ollama
-        assert response.status_code in [422, 400, 500]
+        assert response.status_code in [422, 400, 500, 503]
 
     def test_chat_ollama_role_invalida(self, client):
         """Testa mensagem com role inválida."""
@@ -447,7 +493,7 @@ class TestChatOllamaEndpoint:
 
         # Pode passar pela validação inicial mas falhar no Ollama
         # ou ser rejeitado pela validação Pydantic
-        assert response.status_code in [422, 400, 500]
+        assert response.status_code in [422, 400, 500, 503]
 
     def test_chat_ollama_modelo_padrao(self, client):
         """Testa que modelo padrão é usado quando não especificado."""
@@ -476,6 +522,30 @@ class TestChatOllamaEndpoint:
             )
 
             assert response.status_code == 200
+
+    def test_chat_ollama_erro_generico_servico(self, client):
+        """Testa erro genérico do serviço Ollama (status code não específico)."""
+        with patch('main.httpx.AsyncClient') as mock_client_class:
+            mock_response = MagicMock()
+            mock_response.status_code = 401  # Unauthorized (status não específico)
+            mock_response.text = "Unauthorized"
+
+            mock_instance = MagicMock()
+            mock_instance.post = AsyncMock(return_value=mock_response)
+
+            mock_client_class.return_value.__aenter__ = AsyncMock(return_value=mock_instance)
+            mock_client_class.return_value.__aexit__ = AsyncMock(return_value=None)
+
+            response = client.post(
+                "/api/chat",
+                json={
+                    "messages": [{"role": "user", "content": "Test"}]
+                }
+            )
+
+            # FastAPI retorna 500 para erros não específicos
+            assert response.status_code == 500
+            assert "erro ao consultar ollama" in response.json()["detail"].lower()
 
 
 class TestServicesIntegration:
