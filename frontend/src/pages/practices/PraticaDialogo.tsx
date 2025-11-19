@@ -28,6 +28,8 @@ interface DialogueTurn {
   text: string
   transcription?: string
   coherent?: boolean
+  audioBase64?: string
+  mimeType?: string
 }
 
 interface InterlocutorData {
@@ -58,6 +60,7 @@ export default function PraticaDialogo() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Verification state
   const [verifying, setVerifying] = useState(false)
@@ -248,6 +251,11 @@ export default function PraticaDialogo() {
     return result
   }
 
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [dialogueHistory, currentTranscription])
+
   // Start dialogue - greeting phase
   useEffect(() => {
     if (frasesDialogo && dialogueStage === 'greeting' && !currentPhrase) {
@@ -255,7 +263,12 @@ export default function PraticaDialogo() {
         setCurrentPhrase(frasesDialogo.saudacao)
         const audio = await generatePhraseAudio(frasesDialogo.saudacao, true)
         setAudioData(audio)
-        setDialogueHistory([{ speaker: 'app', text: frasesDialogo.saudacao }])
+        setDialogueHistory([{
+          speaker: 'app',
+          text: frasesDialogo.saudacao,
+          audioBase64: audio.normal.audioBase64,
+          mimeType: audio.normal.mimeType
+        }])
       }
       startGreeting()
     }
@@ -284,7 +297,12 @@ export default function PraticaDialogo() {
       setCurrentPhrase(selectedPhrase)
       const audio = await generatePhraseAudio(selectedPhrase, true)
       setAudioData(audio)
-      setDialogueHistory(prev => [...prev, { speaker: 'app', text: selectedPhrase }])
+      setDialogueHistory(prev => [...prev, {
+        speaker: 'app',
+        text: selectedPhrase,
+        audioBase64: audio.normal.audioBase64,
+        mimeType: audio.normal.mimeType
+      }])
     } catch (error) {
       console.error('Erro ao carregar frase intermediária:', error)
       alert('Erro ao carregar a próxima frase. Verifique se o serviço TTS está rodando.')
@@ -300,6 +318,16 @@ export default function PraticaDialogo() {
     setVerifying(true)
 
     try {
+      // Convert audio blob to base64 for storage
+      const reader = new FileReader()
+      const audioBase64Promise = new Promise<string>((resolve) => {
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(',')[1]
+          resolve(base64)
+        }
+        reader.readAsDataURL(audioBlob)
+      })
+
       // Transcribe audio
       console.log('🎤 Transcrevendo áudio...')
       const transcriptionResult = await transcribeAudio(audioBlob)
@@ -308,50 +336,28 @@ export default function PraticaDialogo() {
 
       console.log('📝 Transcrição:', transcription)
 
-      // Check coherence with LLM
-      const promptTemplate = getPromptTemplate('dialogo_avaliacao_coerencia')
-      if (promptTemplate) {
-        const prompt = replacePromptParams(promptTemplate, {
-          idioma: getIdiomaDisplayName(selectedIdioma),
-          pergunta: currentPhrase,
-          resposta: transcription
-        })
+      // Wait for audio conversion
+      const userAudioBase64 = await audioBase64Promise
 
-        console.log('🤖 Consultando LLM para avaliar coerência...')
-        const response = await chatWithOllama({
-          messages: [
-            { role: 'user', content: prompt }
-          ]
-        })
+      // Add to dialogue history with audio data (no coherence check)
+      setDialogueHistory(prev => [
+        ...prev,
+        {
+          speaker: 'user',
+          text: transcription,
+          transcription: transcription,
+          audioBase64: userAudioBase64,
+          mimeType: audioBlob.type
+        }
+      ])
 
-        const cleanedResponse = cleanJsonResponse(response.message.content)
-        console.log('🤖 Resposta LLM:', cleanedResponse)
-
-        const resultJson = JSON.parse(cleanedResponse)
-        const isCoherent = resultJson.coerente === 'True' || resultJson.coerente === true
-        setCurrentCoherence(isCoherent)
-
-        console.log('✅ Coerente:', isCoherent)
-
-        // Add to dialogue history
-        setDialogueHistory(prev => [
-          ...prev,
-          {
-            speaker: 'user',
-            text: transcription,
-            transcription: transcription,
-            coherent: isCoherent
-          }
-        ])
-
-        // Wait a bit to show transcription, then load next phrase
-        setTimeout(() => {
-          handleNextIntermediate()
-        }, 2000) // 2 second delay to show transcription
-      }
+      // Wait a bit to show transcription, then load next phrase
+      setTimeout(() => {
+        handleNextIntermediate()
+      }, 2000) // 2 second delay to show transcription
     } catch (error) {
-      console.error('Erro ao verificar coerência:', error)
-      alert('Erro ao verificar coerência. Verifique se os serviços STT e Ollama estão rodando.')
+      console.error('Erro ao transcrever áudio:', error)
+      alert('Erro ao transcrever áudio. Verifique se o serviço STT está rodando.')
     } finally {
       setVerifying(false)
     }
@@ -394,12 +400,15 @@ export default function PraticaDialogo() {
     setAudioData(audio)
 
     // Add to dialogue history
-    setDialogueHistory(prev => [...prev, { speaker: 'app', text: selectedPhrase }])
+    setDialogueHistory(prev => [...prev, {
+      speaker: 'app',
+      text: selectedPhrase,
+      audioBase64: audio.normal.audioBase64,
+      mimeType: audio.normal.mimeType
+    }])
 
-    // Clear recording and results
+    // Clear recording only - keep transcription visible in history
     clearRecording()
-    setCurrentTranscription('')
-    setCurrentCoherence(null)
   }
 
   // Start farewell phase
@@ -409,7 +418,12 @@ export default function PraticaDialogo() {
         setCurrentPhrase(frasesDialogo.despedida)
         const audio = await generatePhraseAudio(frasesDialogo.despedida, true)
         setAudioData(audio)
-        setDialogueHistory(prev => [...prev, { speaker: 'app', text: frasesDialogo.despedida }])
+        setDialogueHistory(prev => [...prev, {
+          speaker: 'app',
+          text: frasesDialogo.despedida,
+          audioBase64: audio.normal.audioBase64,
+          mimeType: audio.normal.mimeType
+        }])
       }
       startFarewell()
     }
@@ -682,26 +696,39 @@ export default function PraticaDialogo() {
                     const hasUserResponse = dialogueHistory[idx + 1]?.speaker === 'user'
                     if (!hasUserResponse) return null // Current message, shown below
 
-                    // Previous app audio bubble - left aligned, blue
+                    // Previous app audio bubble - left aligned, blue, clickable
                     return (
                       <div key={`app-${idx}`} className="flex justify-start">
-                        <div className="flex items-center gap-2 px-4 py-3 bg-blue-400 text-white rounded-full shadow-md opacity-80">
+                        <button
+                          onClick={() => msg.audioBase64 && msg.mimeType && playAudio(msg.audioBase64, msg.mimeType)}
+                          className="flex items-center gap-2 px-4 py-3 bg-blue-400 text-white rounded-full shadow-md opacity-80 hover:opacity-100 hover:bg-blue-500 transition-all"
+                        >
                           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z"/>
                           </svg>
-                          <span className="text-sm font-medium">0:00{Math.floor(Math.random() * 60)}</span>
-                        </div>
+                          <span className="text-sm font-medium">0:0{Math.floor(Math.random() * 10)}</span>
+                        </button>
                       </div>
                     )
                   } else {
-                    // User audio bubble - right aligned, green
+                    // User audio bubble - right aligned, green, clickable, with transcription
                     return (
                       <div key={`user-${idx}`} className="flex justify-end">
-                        <div className="flex items-center gap-2 px-4 py-3 bg-green-400 text-white rounded-full shadow-md opacity-80">
-                          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                          </svg>
-                          <span className="text-sm font-medium">0:000:04</span>
+                        <div className="max-w-[75%] flex flex-col items-end">
+                          <button
+                            onClick={() => msg.audioBase64 && msg.mimeType && playAudio(msg.audioBase64, msg.mimeType)}
+                            className="flex items-center gap-2 px-4 py-3 bg-green-400 text-white rounded-full shadow-md opacity-80 hover:opacity-100 hover:bg-green-500 transition-all mb-2"
+                          >
+                            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <span className="text-sm font-medium">0:0{Math.floor(Math.random() * 10)}</span>
+                          </button>
+                          {msg.transcription && (
+                            <div className="bg-green-100 text-gray-800 text-sm p-2 rounded-lg w-full">
+                              {msg.transcription}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )
@@ -724,7 +751,7 @@ export default function PraticaDialogo() {
                 {/* User's response bubble with transcription (if sent and transcribed) */}
                 {currentTranscription && (
                   <div className="flex justify-end">
-                    <div className="max-w-[75%]">
+                    <div className="max-w-[75%] flex flex-col items-end">
                       <button
                         onClick={playRecording}
                         className="flex items-center gap-2 px-4 py-3 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 transition-colors mb-2"
@@ -734,12 +761,15 @@ export default function PraticaDialogo() {
                         </svg>
                         <span className="text-sm font-medium">0:00:21</span>
                       </button>
-                      <div className="bg-green-100 text-gray-800 text-sm p-2 rounded-lg">
+                      <div className="bg-green-100 text-gray-800 text-sm p-2 rounded-lg w-full">
                         {currentTranscription}
                       </div>
                     </div>
                   </div>
                 )}
+
+                {/* Invisible div for auto-scroll */}
+                <div ref={messagesEndRef} />
               </div>
 
               {/* Recording Controls - Bottom Fixed */}

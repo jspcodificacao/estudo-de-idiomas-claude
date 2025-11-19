@@ -2,63 +2,48 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from './App'
-import * as DataContext from './contexts/DataContext'
+import * as api from './services/api'
 
-// Mock do DataContext
-vi.mock('./contexts/DataContext', async () => {
-  const actual = await vi.importActual('./contexts/DataContext')
+// Mock das chamadas da API
+vi.mock('./services/api', async () => {
+  const actual = await vi.importActual('./services/api')
   return {
     ...actual,
-    useData: vi.fn()
+    getHistoricoPratica: vi.fn(),
+    getPrompts: vi.fn(),
+    getBaseConhecimento: vi.fn(),
+    getFrasesDialogo: vi.fn()
   }
 })
 
 describe('App Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Mock padrão para useData
-    vi.mocked(DataContext.useData).mockReturnValue({
-      historico: { exercicios: [] },
-      prompts: {
-        descricao: 'Test prompts',
-        data_atualizacao: '2025-11-14T00:00:00Z',
-        marcador_de_paramentros: '{{param}}',
-        prompts: []
-      },
-      baseConhecimento: [
-        {
-          conhecimento_id: '1',
-          texto_original: 'Hallo',
-          traducao: 'Olá',
-          idioma: 'alemao',
-          tipo_conhecimento: 'frase',
-          transcricao_ipa: 'halo',
-          divisao_silabica: 'Hal-lo',
-          data_hora: '2025-11-14T10:00:00Z'
-        }
-      ],
-      frasesDialogo: {
-        saudacao: 'Test greeting',
-        despedida: 'Test farewell',
-        intermediarias: ['Test phrase']
-      },
-      loading: {
-        historico: false,
-        prompts: false,
-        baseConhecimento: false,
-        frasesDialogo: false
-      },
-      errors: {
-        historico: null,
-        prompts: null,
-        baseConhecimento: null,
-        frasesDialogo: null
-      },
-      refreshHistorico: vi.fn(),
-      refreshPrompts: vi.fn(),
-      refreshBaseConhecimento: vi.fn(),
-      refreshFrasesDialogo: vi.fn(),
-      refreshAll: vi.fn()
+
+    // Mock das respostas da API
+    vi.mocked(api.getHistoricoPratica).mockResolvedValue({ exercicios: [] })
+    vi.mocked(api.getPrompts).mockResolvedValue({
+      descricao: 'Test prompts',
+      data_atualizacao: '2025-11-14T00:00:00Z',
+      marcador_de_paramentros: '{{param}}',
+      prompts: []
+    })
+    vi.mocked(api.getBaseConhecimento).mockResolvedValue([
+      {
+        conhecimento_id: '1',
+        texto_original: 'Hallo',
+        traducao: 'Olá',
+        idioma: 'alemao',
+        tipo_conhecimento: 'frase',
+        transcricao_ipa: 'halo',
+        divisao_silabica: 'Hal-lo',
+        data_hora: '2025-11-14T10:00:00Z'
+      }
+    ])
+    vi.mocked(api.getFrasesDialogo).mockResolvedValue({
+      saudacao: 'Test greeting',
+      despedida: 'Test farewell',
+      intermediarias: ['Test phrase']
     })
   })
 
@@ -177,7 +162,7 @@ describe('App Component', () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Prática de Diálogo')).toBeInTheDocument()
+      expect(screen.getByText('Diálogo Interativo')).toBeInTheDocument()
     })
   })
 
