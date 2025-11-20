@@ -103,6 +103,45 @@
         "correto": "Sim",
         "comentario": "Perfeito! Sua pronúncia está correta."
       }
+    },
+    {
+      "data_hora": "2025-11-20T16:57:51.096000Z",
+      "exercicio_id": "f34d6c31-0093-4ce7-a266-af10a25bd614",
+      "conhecimento_id": "411aede2-40ca-4744-8e0d-36d3dddf3de5",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "Danke.",
+        "transcricao_usuario": "Danke",
+        "correto": true,
+        "velocidade_utilizada": "1.0"
+      }
+    },
+    {
+      "data_hora": "2025-11-20T16:58:29.688000Z",
+      "exercicio_id": "a7b3ba5a-4c6d-431e-b72f-3fc72f3c3282",
+      "conhecimento_id": "9b14cdde-8bd3-4cf4-8527-61dcdb731485",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "heißen",
+        "transcricao_usuario": "heißen",
+        "correto": true,
+        "velocidade_utilizada": "1.0"
+      }
+    },
+    {
+      "data_hora": "2025-11-20T16:58:50.284000Z",
+      "exercicio_id": "2dcdf728-96ca-440f-89f8-7d2877a4149b",
+      "conhecimento_id": "f481f018-8caf-4147-8f6e-f9872c1adea6",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "vier",
+        "transcricao_usuario": "vier",
+        "correto": true,
+        "velocidade_utilizada": "1.0"
+      }
     }
   ]
 }
