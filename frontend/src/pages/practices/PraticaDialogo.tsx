@@ -3,11 +3,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useData } from '../../contexts/DataContext'
 import { postExercicio, generateAudio, transcribeAudio, chatWithOllama } from '../../services/api'
 import type {
-  IdiomaConhecimentoEnum,
   ResultadoDialogo,
-  Exercicio,
-  CorretoEnum
+  Exercicio
 } from '../../types/api'
+import { IdiomaConhecimentoEnum, CorretoEnum } from '../../types/api'
 
 type DialogueStage = 'greeting' | 'intermediate' | 'farewell' | 'final'
 type RecordingState = 'idle' | 'recording' | 'recorded'
@@ -44,7 +43,7 @@ export default function PraticaDialogo() {
   const { frasesDialogo, prompts, loading, errors } = useData()
 
   // Dialogue state
-  const [selectedIdioma, setSelectedIdioma] = useState<IdiomaConhecimentoEnum>('alemao')
+  const [selectedIdioma, setSelectedIdioma] = useState<IdiomaConhecimentoEnum>(IdiomaConhecimentoEnum.Alemao)
   const [dialogueStage, setDialogueStage] = useState<DialogueStage>('greeting')
   const [dialogueHistory, setDialogueHistory] = useState<DialogueTurn[]>([])
   const [currentPhrase, setCurrentPhrase] = useState<string>('')
@@ -53,19 +52,21 @@ export default function PraticaDialogo() {
   // Audio state
   const [audioData, setAudioData] = useState<AudioData | null>(null)
   const [generatingAudio, setGeneratingAudio] = useState(false)
-  const [generatingSlowAudio, setGeneratingSlowAudio] = useState(false)
 
   // Recording state
   const [recordingState, setRecordingState] = useState<RecordingState>('idle')
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [recordingTime, setRecordingTime] = useState(0)
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Audio durations state
+  const [audioDurations, setAudioDurations] = useState<Map<number, number>>(new Map())
+
   // Verification state
   const [verifying, setVerifying] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [currentCoherence, setCurrentCoherence] = useState<boolean | null>(null)
   const [currentTranscription, setCurrentTranscription] = useState<string>('')
 
   // Final result
@@ -116,31 +117,40 @@ export default function PraticaDialogo() {
     }
   }
 
-  // Generate slow audio on demand
-  const generateSlowAudio = async () => {
-    if (!currentPhrase || audioData?.lento) return
-
-    setGeneratingSlowAudio(true)
-
-    try {
-      const slowAudio = await generateAudio({
-        text: currentPhrase,
-        speed: 0.5
-      })
-
-      setAudioData(prev => ({
-        ...prev!,
-        lento: {
-          audioBase64: slowAudio.audio,
-          mimeType: slowAudio.mimeType
+  // Get audio duration from base64
+  const getAudioDuration = (audioBase64: string, mimeType: string): Promise<number> => {
+    return new Promise((resolve) => {
+      try {
+        const byteCharacters = atob(audioBase64)
+        const byteNumbers = new Array(byteCharacters.length)
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i)
         }
-      }))
-    } catch (error) {
-      console.error('Erro ao gerar áudio lento:', error)
-      alert('Erro ao gerar áudio lento.')
-    } finally {
-      setGeneratingSlowAudio(false)
-    }
+        const byteArray = new Uint8Array(byteNumbers)
+        const blob = new Blob([byteArray], { type: mimeType })
+        const url = URL.createObjectURL(blob)
+
+        const audio = new Audio(url)
+        audio.onloadedmetadata = () => {
+          URL.revokeObjectURL(url)
+          resolve(audio.duration)
+        }
+        audio.onerror = () => {
+          URL.revokeObjectURL(url)
+          resolve(0)
+        }
+      } catch (error) {
+        console.error('Erro ao obter duração do áudio:', error)
+        resolve(0)
+      }
+    })
+  }
+
+  // Format duration in seconds to mm:ss
+  const formatDuration = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${mins}:${String(secs).padStart(2, '0')}`
   }
 
   // Play audio
@@ -183,11 +193,23 @@ export default function PraticaDialogo() {
         setAudioBlob(audioBlob)
         setRecordingState('recorded')
 
+        // Stop timer
+        if (recordingIntervalRef.current) {
+          clearInterval(recordingIntervalRef.current)
+          recordingIntervalRef.current = null
+        }
+
         stream.getTracks().forEach(track => track.stop())
       }
 
       mediaRecorder.start()
       setRecordingState('recording')
+
+      // Start timer
+      setRecordingTime(0)
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1)
+      }, 1000)
     } catch (error) {
       console.error('Erro ao iniciar gravação:', error)
       alert('Erro ao acessar o microfone. Verifique as permissões do navegador.')
@@ -207,7 +229,13 @@ export default function PraticaDialogo() {
     setRecordingState('idle')
     audioChunksRef.current = []
     setCurrentTranscription('')
-    setCurrentCoherence(null)
+    setRecordingTime(0)
+
+    // Clear timer if running
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current)
+      recordingIntervalRef.current = null
+    }
   }
 
   // Play recorded audio
@@ -256,6 +284,15 @@ export default function PraticaDialogo() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [dialogueHistory, currentTranscription])
 
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current)
+      }
+    }
+  }, [])
+
   // Start dialogue - greeting phase
   useEffect(() => {
     if (frasesDialogo && dialogueStage === 'greeting' && !currentPhrase) {
@@ -263,6 +300,11 @@ export default function PraticaDialogo() {
         setCurrentPhrase(frasesDialogo.saudacao)
         const audio = await generatePhraseAudio(frasesDialogo.saudacao, true)
         setAudioData(audio)
+
+        // Get duration for this audio
+        const duration = await getAudioDuration(audio.normal.audioBase64, audio.normal.mimeType)
+        setAudioDurations(new Map([[0, duration]]))
+
         setDialogueHistory([{
           speaker: 'app',
           text: frasesDialogo.saudacao,
@@ -297,6 +339,11 @@ export default function PraticaDialogo() {
       setCurrentPhrase(selectedPhrase)
       const audio = await generatePhraseAudio(selectedPhrase, true)
       setAudioData(audio)
+
+      // Get duration for this audio
+      const duration = await getAudioDuration(audio.normal.audioBase64, audio.normal.mimeType)
+      setAudioDurations(prev => new Map(prev).set(dialogueHistory.length + 1, duration))
+
       setDialogueHistory(prev => [...prev, {
         speaker: 'app',
         text: selectedPhrase,
@@ -339,6 +386,9 @@ export default function PraticaDialogo() {
       // Wait for audio conversion
       const userAudioBase64 = await audioBase64Promise
 
+      // Save duration for user audio
+      setAudioDurations(prev => new Map(prev).set(dialogueHistory.length, recordingTime))
+
       // Add to dialogue history with audio data (no coherence check)
       setDialogueHistory(prev => [
         ...prev,
@@ -350,6 +400,10 @@ export default function PraticaDialogo() {
           mimeType: audioBlob.type
         }
       ])
+
+      // Clear current transcription immediately to avoid duplication
+      setCurrentTranscription('')
+      clearRecording()
 
       // Wait a bit to show transcription, then load next phrase
       setTimeout(() => {
@@ -378,7 +432,6 @@ export default function PraticaDialogo() {
       setAudioData(null)
       setCurrentPhrase('')
       setCurrentTranscription('')
-      setCurrentCoherence(null)
       return
     }
 
@@ -399,6 +452,10 @@ export default function PraticaDialogo() {
     const audio = await generatePhraseAudio(selectedPhrase, false)
     setAudioData(audio)
 
+    // Get duration for this audio
+    const duration = await getAudioDuration(audio.normal.audioBase64, audio.normal.mimeType)
+    setAudioDurations(prev => new Map(prev).set(dialogueHistory.length, duration))
+
     // Add to dialogue history
     setDialogueHistory(prev => [...prev, {
       speaker: 'app',
@@ -418,6 +475,11 @@ export default function PraticaDialogo() {
         setCurrentPhrase(frasesDialogo.despedida)
         const audio = await generatePhraseAudio(frasesDialogo.despedida, true)
         setAudioData(audio)
+
+        // Get duration for this audio
+        const duration = await getAudioDuration(audio.normal.audioBase64, audio.normal.mimeType)
+        setAudioDurations(prev => new Map(prev).set(dialogueHistory.length, duration))
+
         setDialogueHistory(prev => [...prev, {
           speaker: 'app',
           text: frasesDialogo.despedida,
@@ -468,7 +530,6 @@ export default function PraticaDialogo() {
         console.log('✅ Dados do interlocutor:', resultJson)
 
         // Save exercise
-        setSaving(true)
         try {
           const exercicio: Exercicio = {
             data_hora: new Date().toISOString(),
@@ -484,8 +545,6 @@ export default function PraticaDialogo() {
           await postExercicio(exercicio)
         } catch (error) {
           console.error('Erro ao salvar exercício:', error)
-        } finally {
-          setSaving(false)
         }
       }
     } catch (error) {
@@ -513,7 +572,6 @@ export default function PraticaDialogo() {
     setAudioData(null)
     clearRecording()
     setCurrentTranscription('')
-    setCurrentCoherence(null)
     setInterlocutorData(null)
   }
 
@@ -655,12 +713,9 @@ export default function PraticaDialogo() {
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="mb-6 pb-4 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-blue-600 mb-1">
-              Diálogo Interativo
+            <h1 className="text-2xl font-bold text-blue-600 text-center">
+              Prática de Diálogo
             </h1>
-            <p className="text-gray-500 text-sm">
-              Ouça e responda com áudio
-            </p>
           </div>
 
           {/* Language selector (only at start) */}
@@ -706,7 +761,7 @@ export default function PraticaDialogo() {
                           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z"/>
                           </svg>
-                          <span className="text-sm font-medium">0:0{Math.floor(Math.random() * 10)}</span>
+                          <span className="text-sm font-medium">{formatDuration(audioDurations.get(idx) || 0)}</span>
                         </button>
                       </div>
                     )
@@ -722,7 +777,7 @@ export default function PraticaDialogo() {
                             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M8 5v14l11-7z"/>
                             </svg>
-                            <span className="text-sm font-medium">0:0{Math.floor(Math.random() * 10)}</span>
+                            <span className="text-sm font-medium">{formatDuration(audioDurations.get(idx) || 0)}</span>
                           </button>
                           {msg.transcription && (
                             <div className="bg-green-100 text-gray-800 text-sm p-2 rounded-lg w-full">
@@ -744,7 +799,7 @@ export default function PraticaDialogo() {
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M8 5v14l11-7z"/>
                     </svg>
-                    <span className="text-sm font-medium">0:0{Math.floor(Math.random() * 10)}:{String(Math.floor(Math.random() * 60)).padStart(2, '0')}</span>
+                    <span className="text-sm font-medium">{formatDuration(audioDurations.get(dialogueHistory.length) || 0)}</span>
                   </button>
                 </div>
 
@@ -759,7 +814,7 @@ export default function PraticaDialogo() {
                         <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M8 5v14l11-7z"/>
                         </svg>
-                        <span className="text-sm font-medium">0:00:21</span>
+                        <span className="text-sm font-medium">{formatDuration(recordingTime)}</span>
                       </button>
                       <div className="bg-green-100 text-gray-800 text-sm p-2 rounded-lg w-full">
                         {currentTranscription}
@@ -791,7 +846,7 @@ export default function PraticaDialogo() {
                   <>
                     <div className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-600 rounded-full">
                       <div className="h-3 w-3 bg-red-600 rounded-full animate-pulse"></div>
-                      <span className="font-medium">0:03</span>
+                      <span className="font-medium">{formatDuration(recordingTime)}</span>
                     </div>
                     <button
                       onClick={stopRecording}
