@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schema de Prompts",
+  "description": "Um schema para definir uma coleção de prompts, seus parâmetros e as estruturas de resposta esperadas.",
+  "type": "object",
+  "properties": {
+    "descricao": {
+      "description": "Uma breve descrição do propósito geral do conjunto de prompts.",
+      "type": "string"
+    },
+    "data_atualizacao": {
+      "description": "A data e hora da última atualização do arquivo de prompts, em conformidade com o formato ISO 8601.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "marcador_de_paramentros": {
+      "description": "A string usada para delimitar os parâmetros dentro do template do prompt.",
+      "type": "string"
+    },
+    "prompts": {
+      "description": "Uma lista contendo as definições detalhadas de cada prompt.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "prompt_id": {
+            "description": "Um identificador único para cada prompt.",
+            "type": "string"
+          },
+          "descricao": {
+            "description": "Uma explicação detalhada da finalidade e do funcionamento do prompt.",
+            "type": "string"
+          },
+          "template": {
+            "description": "O texto base do prompt, incluindo os marcadores para substituição de parâmetros.",
+            "type": "string"
+          },
+          "parametros": {
+            "description": "Uma lista de strings, onde cada string é um nome de parâmetro esperado pelo template.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resposta_estruturada": {
+            "description": "Um valor booleano que indica se a resposta esperada para o prompt deve ser um JSON estruturado.",
+            "type": "boolean"
+          },
+          "estrutura_esperada": {
+            "description": "Um objeto que define a estrutura do JSON de resposta quando 'resposta_estruturada' é verdadeiro.",
+            "type": "object"
+          },
+          "ultima_edicao": {
+            "description": "A data e hora da última modificação deste prompt específico, no formato ISO 8601.",
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "prompt_id",
+          "descricao",
+          "template",
+          "parametros",
+          "resposta_estruturada",
+          "ultima_edicao"
+        ]
+      }
+    }
+  },
+  "required": [
+    "descricao",
+    "data_atualizacao",
+    "marcador_de_paramentros",
+    "prompts"
+  ]
+}

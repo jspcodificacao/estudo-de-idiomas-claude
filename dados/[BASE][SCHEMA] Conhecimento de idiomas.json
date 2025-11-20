@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Esquema de Conhecimento de Idiomas",
+  "description": "Define a estrutura e as restrições para um arquivo de conhecimento de idiomas. O arquivo deve ser um array de objetos, onde cada objeto representa uma unidade de conhecimento.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "title": "Registro de Conhecimento",
+    "description": "Um único registro de conhecimento de um idioma.",
+    "properties": {
+      "conhecimento_id": {
+        "description": "Identificador único universal (UUID) para o registro. Obrigatório e não pode ser vazio.",
+        "type": "string",
+        "format": "uuid",
+        "minLength": 1
+      },
+      "data_hora": {
+        "description": "Data e hora da criação/modificação no formato ISO 8601. Obrigatório e não pode ser vazio.",
+        "type": "string",
+        "format": "date-time",
+        "minLength": 1
+      },
+      "idioma": {
+        "description": "O idioma ao qual o conhecimento se refere. Deve ser 'alemao' ou 'ingles'.",
+        "type": "string",
+        "enum": ["alemao", "ingles"]
+      },
+      "tipo_conhecimento": {
+        "description": "O tipo de conhecimento. Deve ser 'frase' ou 'palavra'.",
+        "type": "string",
+        "enum": ["frase", "palavra"]
+      },
+      "texto_original": {
+        "description": "O texto no idioma original. Obrigatório e não pode ser vazio.",
+        "type": "string",
+        "minLength": 1
+      },
+      "transcricao_ipa": {
+        "description": "Transcrição fonética opcional usando o Alfabeto Fonético Internacional (IPA).",
+        "type": "string"
+      },
+      "traducao": {
+        "description": "A tradução do texto original. Obrigatório e não pode ser vazio.",
+        "type": "string",
+        "minLength": 1
+      },
+      "divisao_silabica": {
+        "description": "A divisão silábica opcional do texto original.",
+        "type": "string"
+      }
+    },
+    "required": [
+      "conhecimento_id",
+      "data_hora",
+      "idioma",
+      "tipo_conhecimento",
+      "texto_original",
+      "traducao"
+    ]
+  }
+}

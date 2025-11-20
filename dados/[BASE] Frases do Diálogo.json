@@ -1,0 +1,10 @@
+{
+  "saudacao": "Hallo",
+  "despedida": "Tschüss",
+  "intermediarias": [
+    "Wie heißen Sie?",
+    "Wie groß sind Sie?",
+    "Wie alt sind Sie?",
+    "Wie viel wiegen Sie?"
+  ]
+}

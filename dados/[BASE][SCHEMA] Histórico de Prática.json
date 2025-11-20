@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schema de Exercícios de Idiomas",
+  "description": "Um schema para validar uma lista de exercícios de prática de idiomas.",
+  "type": "object",
+  "properties": {
+    "exercicios": {
+      "type": "array",
+      "description": "Uma lista de exercícios realizados.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "data_hora": {
+            "description": "Data e hora em que o exercício foi realizado, em formato ISO 8601.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercicio_id": {
+            "description": "Identificador único para o registro do exercício.",
+            "type": "string",
+            "format": "uuid"
+          },
+          "conhecimento_id": {
+            "description": "Identificador único para o conhecimento (ex: palavra, frase) sendo praticado.",
+            "type": "string",
+            "format": "uuid"
+          },
+          "idioma": {
+            "description": "O idioma que está sendo praticado.",
+            "type": "string",
+            "enum": [
+              "alemao",
+              "ingles"
+            ]
+          },
+          "tipo_pratica": {
+            "description": "O tipo de exercício de prática realizado.",
+            "type": "string",
+            "enum": [
+              "traducao",
+              "audicao",
+              "pronuncia",
+              "dialogo",
+              "pronuncia_de_numeros"
+            ]
+          },
+          "resultado_exercicio": {
+            "description": "Um objeto contendo os resultados detalhados do exercício, cuja estrutura varia com o 'tipo_pratica'."
+          }
+        },
+        "required": [
+          "data_hora",
+          "exercicio_id",
+          "conhecimento_id",
+          "idioma",
+          "tipo_pratica",
+          "resultado_exercicio"
+        ],
+        "oneOf": [
+          {
+            "properties": {
+              "tipo_pratica": { "const": "traducao" },
+              "resultado_exercicio": {
+                "type": "object",
+                "properties": {
+                  "campo_fornecido": {
+                    "type": "string",
+                    "enum": ["texto_original", "divisao_silabica", "transcricao_ipa", "traducao"]
+                  },
+                  "campos_preenchidos": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "enum": ["texto_original", "divisao_silabica", "transcricao_ipa", "traducao"]
+                    }
+                  },
+                  "valores_preenchidos": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "uniqueItems": true,
+                    "items": { "type": "string" }
+                  },
+                  "campos_resultados": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "items": { "type": "boolean" }
+                  }
+                },
+                "required": [
+                  "campo_fornecido",
+                  "campos_preenchidos",
+                  "valores_preenchidos",
+                  "campos_resultados"
+                ],
+                "allOf": [
+                  {
+                    "if": { "properties": { "campos_preenchidos": { "minItems": 1, "maxItems": 1 } } },
+                    "then": {
+                      "properties": {
+                        "valores_preenchidos": { "minItems": 1, "maxItems": 1 },
+                        "campos_resultados": { "minItems": 1, "maxItems": 1 }
+                      }
+                    }
+                  },
+                  {
+                    "if": { "properties": { "campos_preenchidos": { "minItems": 2, "maxItems": 2 } } },
+                    "then": {
+                      "properties": {
+                        "valores_preenchidos": { "minItems": 2, "maxItems": 2 },
+                        "campos_resultados": { "minItems": 2, "maxItems": 2 }
+                      }
+                    }
+                  },
+                  {
+                    "if": { "properties": { "campos_preenchidos": { "minItems": 3, "maxItems": 3 } } },
+                    "then": {
+                      "properties": {
+                        "valores_preenchidos": { "minItems": 3, "maxItems": 3 },
+                        "campos_resultados": { "minItems": 3, "maxItems": 3 }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "tipo_pratica": { "const": "audicao" },
+              "resultado_exercicio": {
+                "type": "object",
+                "properties": {
+                  "texto_original": { "type": "string" },
+                  "transcricao_usuario": { "type": "string" },
+                  "correto": { "type": "boolean" },
+                  "velocidade_utilizada": {
+                    "type": "string",
+                    "enum": ["1.0", "0.75", "0.5"]
+                  }
+                },
+                "required": ["texto_original", "transcricao_usuario", "correto", "velocidade_utilizada"]
+              }
+            }
+          },
+          {
+            "properties": {
+              "tipo_pratica": { "const": "pronuncia" },
+              "resultado_exercicio": {
+                "type": "object",
+                "properties": {
+                  "texto_original": { "type": "string" },
+                  "transcricao_stt": { "type": "string" },
+                  "correto": {
+                    "type": "string",
+                    "enum": ["Sim", "Parcial", "Não"]
+                  },
+                  "comentario": { "type": "string" }
+                },
+                "required": ["texto_original", "transcricao_stt", "correto", "comentario"]
+              }
+            }
+          },
+          {
+            "properties": {
+              "tipo_pratica": { "const": "dialogo" },
+              "resultado_exercicio": {
+                "type": "object",
+                "properties": {
+                  "correto": {
+                    "type": "string",
+                    "enum": [
+                      "Sim",
+                      "Parcial",
+                      "Não"
+                    ]
+                  }
+                },
+                "required": [
+                  "correto"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "tipo_pratica": { "const": "pronuncia_de_numeros" },
+              "resultado_exercicio": {
+                "type": "object",
+                "properties": {
+                  "numero_referencia": { "type": "string" },
+                  "audio_usuario_url": { "type": "string", "format": "uri" },
+                  "transcricao_correta": { "type": "string" },
+                  "acertou": { "type": "boolean" }
+                },
+                "required": ["numero_referencia", "audio_usuario_url", "transcricao_correta", "acertou"]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "exercicios"
+  ]
+}

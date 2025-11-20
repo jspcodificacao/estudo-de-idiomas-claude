@@ -1,0 +1,147 @@
+{
+  "exercicios": [
+    {
+      "data_hora": "2025-11-17T15:30:05.138000Z",
+      "exercicio_id": "f47ea4df-323e-4a03-b8f8-d0d72c07bb71",
+      "conhecimento_id": "c5d6e7f8-9a0b-1c2d-3e4f-5a6b7c8d9e0f",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "Ich wiege achtundsiebzig Kilo.",
+        "transcricao_usuario": "Ich wiege achtundsiebsich Kilo",
+        "correto": false,
+        "velocidade_utilizada": "1.0"
+      }
+    },
+    {
+      "data_hora": "2025-11-17T15:30:53.798000Z",
+      "exercicio_id": "7119e894-4fb2-4f34-b2bc-85ef543f6d54",
+      "conhecimento_id": "d71ae5b0-3377-434a-8dad-6e885fe6acfb",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "Dank",
+        "transcricao_usuario": "Dank",
+        "correto": true,
+        "velocidade_utilizada": "1.0"
+      }
+    },
+    {
+      "data_hora": "2025-11-17T15:32:41.981000Z",
+      "exercicio_id": "27c85caf-44cb-40da-92b9-e5b0ef16f08c",
+      "conhecimento_id": "c7d4f2a1-5b8c-4e3d-8a5f-9b1d0c6e4f2b",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "Guten Tag.",
+        "transcricao_usuario": "Guten Tag",
+        "correto": true,
+        "velocidade_utilizada": "1.0"
+      }
+    },
+    {
+      "data_hora": "2025-11-17T15:53:52.536000Z",
+      "exercicio_id": "1a0712b6-a2ff-4b10-951b-bf19796318fb",
+      "conhecimento_id": "411aede2-40ca-4744-8e0d-36d3dddf3de5",
+      "idioma": "alemao",
+      "tipo_pratica": "pronuncia",
+      "resultado_exercicio": {
+        "texto_original": "Danke.",
+        "transcricao_stt": "Danke.",
+        "correto": "Sim",
+        "comentario": "Perfeito! Sua pronúncia está correta."
+      }
+    },
+    {
+      "data_hora": "2025-11-17T15:54:08.758000Z",
+      "exercicio_id": "ddc9ea1a-edec-4d3b-b2ef-3379b87b1555",
+      "conhecimento_id": "c7d4f2a1-5b8c-4e3d-8a5f-9b1d0c6e4f2b",
+      "idioma": "alemao",
+      "tipo_pratica": "pronuncia",
+      "resultado_exercicio": {
+        "texto_original": "Guten Tag.",
+        "transcricao_stt": "Guten Tag!",
+        "correto": "Sim",
+        "comentario": "Perfeito! Sua pronúncia está correta."
+      }
+    },
+    {
+      "data_hora": "2025-11-17T15:54:27.332000Z",
+      "exercicio_id": "856d4aaf-c878-4760-9a1b-1f4cede422aa",
+      "conhecimento_id": "d71ae5b0-3377-434a-8dad-6e885fe6acfb",
+      "idioma": "alemao",
+      "tipo_pratica": "pronuncia",
+      "resultado_exercicio": {
+        "texto_original": "Dank",
+        "transcricao_stt": "Dank!",
+        "correto": "Sim",
+        "comentario": "Perfeito! Sua pronúncia está correta."
+      }
+    },
+    {
+      "data_hora": "2025-11-17T15:58:27.471000Z",
+      "exercicio_id": "fe55a2b5-537f-4584-9b65-37efbc6113b5",
+      "conhecimento_id": "b2c1e8d4-3a9b-4f8e-9c6d-5e3f2a1b0c7e",
+      "idioma": "alemao",
+      "tipo_pratica": "pronuncia",
+      "resultado_exercicio": {
+        "texto_original": "Guten Morgen.",
+        "transcricao_stt": "Guten Morgen!",
+        "correto": "Sim",
+        "comentario": "Perfeito! Sua pronúncia está correta."
+      }
+    },
+    {
+      "data_hora": "2025-11-17T15:58:45.633000Z",
+      "exercicio_id": "49076fca-71da-40c4-ba1a-f284bd28e1ff",
+      "conhecimento_id": "fcf708c6-f5dd-4474-a5ea-efcfee8b5e8d",
+      "idioma": "alemao",
+      "tipo_pratica": "pronuncia",
+      "resultado_exercicio": {
+        "texto_original": "Morgen",
+        "transcricao_stt": "Morgen.",
+        "correto": "Sim",
+        "comentario": "Perfeito! Sua pronúncia está correta."
+      }
+    },
+    {
+      "data_hora": "2025-11-20T16:57:51.096000Z",
+      "exercicio_id": "f34d6c31-0093-4ce7-a266-af10a25bd614",
+      "conhecimento_id": "411aede2-40ca-4744-8e0d-36d3dddf3de5",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "Danke.",
+        "transcricao_usuario": "Danke",
+        "correto": true,
+        "velocidade_utilizada": "1.0"
+      }
+    },
+    {
+      "data_hora": "2025-11-20T16:58:29.688000Z",
+      "exercicio_id": "a7b3ba5a-4c6d-431e-b72f-3fc72f3c3282",
+      "conhecimento_id": "9b14cdde-8bd3-4cf4-8527-61dcdb731485",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "heißen",
+        "transcricao_usuario": "heißen",
+        "correto": true,
+        "velocidade_utilizada": "1.0"
+      }
+    },
+    {
+      "data_hora": "2025-11-20T16:58:50.284000Z",
+      "exercicio_id": "2dcdf728-96ca-440f-89f8-7d2877a4149b",
+      "conhecimento_id": "f481f018-8caf-4147-8f6e-f9872c1adea6",
+      "idioma": "alemao",
+      "tipo_pratica": "audicao",
+      "resultado_exercicio": {
+        "texto_original": "vier",
+        "transcricao_usuario": "vier",
+        "correto": true,
+        "velocidade_utilizada": "1.0"
+      }
+    }
+  ]
+}

@@ -22,6 +22,9 @@ from validator import ValidadorJSON
 # Carregar variáveis de ambiente
 load_dotenv()
 
+# Obter caminho dos dados da variável de ambiente
+DADOS_PATH = os.getenv("DADOS_PATH", "../public")
+
 # Criar aplicação FastAPI
 app = FastAPI(
     title="API de Estudo de Idiomas",
@@ -38,8 +41,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Inicializar validador
-validador = ValidadorJSON(base_path="../public")
+# Inicializar validador com caminho configurável
+validador = ValidadorJSON(base_path=DADOS_PATH)
 
 # Configuração do serviço TTS/STT
 TTS_SERVICE_PORT = int(os.getenv("SERVICO_TTS_E_STT", 3015))
@@ -423,4 +426,5 @@ if __name__ == "__main__":
     port = int(os.getenv("BACKEND_PORT", 3010))
 
     print(f"Iniciando servidor em http://localhost:{port}")
+    print(f"Caminho dos dados: {DADOS_PATH}")
     uvicorn.run(app, host="localhost", port=port)

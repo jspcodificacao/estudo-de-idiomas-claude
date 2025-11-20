@@ -1,0 +1,39 @@
+{
+  "descricao": "Uma coleção de prompts para tarefas de geração e manipulação de texto.",
+  "data_atualizacao": "2025-11-20T17:12:30.161000Z",
+  "marcador_de_paramentros": "{{param}}",
+  "prompts": [
+    {
+      "prompt_id": "gerador_resumo_v1",
+      "descricao": "Descrição alterada",
+      "template": "Por favor, gere um resumo conciso do seguinte texto: \"{{texto_completo}}\".",
+      "parametros": [
+        "texto_completo",
+        "numero_de_paragrafos"
+      ],
+      "resposta_estruturada": true,
+      "estrutura_esperada": {
+        "type": "object",
+        "properties": {
+          "resumo_gerado": {
+            "type": "string"
+          }
+        }
+      },
+      "ultima_edicao": "2025-11-13T08:45:00Z"
+    },
+    {
+      "prompt_id": "tradutor_texto_v2",
+      "descricao": "Traduz um trecho de texto de um idioma de origem para um idioma de destino",
+      "template": "Traduza o texto \"{{texto_original}}\" do idioma \"{{idioma_origem}}\" para o idioma \"{{idioma_destino}}\".",
+      "parametros": [
+        "texto_original",
+        "idioma_origem",
+        "idioma_destino"
+      ],
+      "resposta_estruturada": false,
+      "estrutura_esperada": null,
+      "ultima_edicao": "2025-10-28T14:20:00Z"
+    }
+  ]
+}

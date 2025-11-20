@@ -247,12 +247,22 @@ class ValidadorJSON:
 
 def main():
     """Função principal para executar a validação de todos os arquivos."""
+    import os
+    from dotenv import load_dotenv
+
+    # Carregar variáveis de ambiente
+    load_dotenv()
+
+    # Obter caminho dos dados
+    dados_path = os.getenv("DADOS_PATH", "../public")
+
     print("=" * 60)
     print("VALIDADOR DE ARQUIVOS JSON - Estudo de Idiomas")
     print("=" * 60)
+    print(f"Caminho dos dados: {dados_path}")
     print()
 
-    validador = ValidadorJSON()
+    validador = ValidadorJSON(base_path=dados_path)
     resultados = validador.validar_todos()
 
     for nome, resultado in resultados.items():

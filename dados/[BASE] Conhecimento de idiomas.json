@@ -1,0 +1,352 @@
+[
+  {
+    "conhecimento_id": "40986742-86a6-4bc6-bae3-41e34ce5298d",
+    "data_hora": "2025-10-05T14:35:06.829Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Hallo!",
+    "transcricao_ipa": "haˈloː",
+    "traducao": "Olá!",
+    "divisao_silabica": "Hal-lo"
+  },
+  {
+    "conhecimento_id": "411aede2-40ca-4744-8e0d-36d3dddf3de5",
+    "data_hora": "2025-10-05T17:42:40.425Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Danke.",
+    "transcricao_ipa": "ˈdaŋkə",
+    "traducao": "Obrigado.",
+    "divisao_silabica": "Dan-ke"
+  },
+  {
+    "conhecimento_id": "a8f5d0b3-1c7e-4a9f-8d2a-0b9c1e7f6a4d",
+    "data_hora": "2025-10-07T10:15:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Vielen Dank.",
+    "transcricao_ipa": "ˈfiːlən ˈdaŋk",
+    "traducao": "Muito obrigado.",
+    "divisao_silabica": "Vie-len Dank"
+  },
+  {
+    "conhecimento_id": "b2c1e8d4-3a9b-4f8e-9c6d-5e3f2a1b0c7e",
+    "data_hora": "2025-10-07T10:15:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Guten Morgen.",
+    "transcricao_ipa": "ˌɡuːtən ˈmɔʁɡn̩",
+    "traducao": "Bom dia.",
+    "divisao_silabica": "Gu-ten Mor-gen"
+  },
+  {
+    "conhecimento_id": "c7d4f2a1-5b8c-4e3d-8a5f-9b1d0c6e4f2b",
+    "data_hora": "2025-10-07T10:15:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Guten Tag.",
+    "transcricao_ipa": "ˌɡuːtən ˈtaːk",
+    "traducao": "Boa tarde.",
+    "divisao_silabica": "Gu-ten Tag"
+  },
+  {
+    "conhecimento_id": "d9e8c1b0-7a6f-4d2c-9b4e-8f5c3a2b1d0e",
+    "data_hora": "2025-10-07T10:15:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Guten Abend.",
+    "transcricao_ipa": "ˌɡuːtən 'aːbn̩t",
+    "traducao": "Boa noite. [usado como saudação ao chegar ou encontrar alguém no final da tarde/início da noite]",
+    "divisao_silabica": "Gu-ten A-bend"
+  },
+  {
+    "conhecimento_id": "e1f2a3b4-5c6d-7e8f-9a0b-1c2d3e4f5a6b",
+    "data_hora": "2025-10-07T10:20:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Guten Nacht.",
+    "transcricao_ipa": "ˌɡuːtən ˈnaxt",
+    "traducao": "Boa noite. [usado ao se despedir para ir dormir]",
+    "divisao_silabica": "Gu-ten Nacht"
+  },
+  {
+    "conhecimento_id": "f2a3b4c5-6d7e-8f9a-0b1c-2d3e4f5a6b7c",
+    "data_hora": "2025-10-07T10:20:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Ich heiße Jucieudes.",
+    "transcricao_ipa": "ɪç ˈhaɪsə ʒusiˈewdis",
+    "traducao": "Eu me chamo Jucieudes.",
+    "divisao_silabica": "Ich hei-ße Ju-ci-eu-des"
+  },
+  {
+    "conhecimento_id": "a3b4c5d6-7e8f-9a0b-1c2d-3e4f5a6b7c8d",
+    "data_hora": "2025-10-07T10:20:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Ich bin sechsundfünfzig Jahre alt.",
+    "transcricao_ipa": "ɪç bɪn ˌzɛksʊntˈfʏnftsɪç ˈjaːʁə alt",
+    "traducao": "Eu tenho cinquenta e seis anos de idade.",
+    "divisao_silabica": "Ich bin sechs-und-fünf-zig Jah-re alt"
+  },
+  {
+    "conhecimento_id": "b4c5d6e7-8f9a-0b1c-2d3e-4f5a6b7c8d9e",
+    "data_hora": "2025-10-07T10:20:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Ich bin ein Meter vierundsiebzig groß.",
+    "transcricao_ipa": "ɪç bɪn ˈaɪn ˈmeːtɐ ˌfiːɐ̯ʊntˈziːptsɪç ˈɡʁoːs",
+    "traducao": "Eu tenho um metro e setenta e quatro de altura.",
+    "divisao_silabica": "Ich bin ein Me-ter vier-und-sieb-zig groß"
+  },
+  {
+    "conhecimento_id": "c5d6e7f8-9a0b-1c2d-3e4f-5a6b7c8d9e0f",
+    "data_hora": "2025-10-07T10:20:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Ich wiege achtundsiebzig Kilo.",
+    "transcricao_ipa": "ɪç ˈviːɡə ˌaxtʊntˈziːptsɪç ˈkiːlo",
+    "traducao": "Eu peso setenta e oito quilos.",
+    "divisao_silabica": "Ich wie-ge acht-und-sieb-zig Ki-lo"
+  },
+  {
+    "conhecimento_id": "d6e7f8a9-0b1c-2d3e-4f5a-6b7c8d9e0f1a",
+    "data_hora": "2025-10-07T10:20:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Ich bin Programmierer.",
+    "transcricao_ipa": "ɪç bɪn pʁoɡʁaˈmiːʁɐ",
+    "traducao": "Eu sou programador de computadores.",
+    "divisao_silabica": "Ich bin Pro-gram-mie-rer"
+  },
+  {
+    "conhecimento_id": "e7f8a9b0-1c2d-3e4f-5a6b-7c8d9e0f1a2b",
+    "data_hora": "2025-10-07T10:20:00.000Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "frase",
+    "texto_original": "Tschüss.",
+    "transcricao_ipa": "tʃʏs",
+    "traducao": "Tchau.",
+    "divisao_silabica": "Tschüss"
+  },
+  {
+    "conhecimento_id": "23ac4192-ed5b-4e3e-ab2f-c203b63e2f10",
+    "data_hora": "2025-10-12T12:43:50.837Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "vielen",
+    "transcricao_ipa": "ˈfiːlən",
+    "traducao": "muitos",
+    "divisao_silabica": "vie-len"
+  },
+  {
+    "conhecimento_id": "d71ae5b0-3377-434a-8dad-6e885fe6acfb",
+    "data_hora": "2025-10-12T15:14:52.472Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Dank",
+    "traducao": "Agradecimento",
+    "transcricao_ipa": "daŋk",
+    "divisao_silabica": "Dank"
+  },
+  {
+    "conhecimento_id": "fcf708c6-f5dd-4474-a5ea-efcfee8b5e8d",
+    "data_hora": "2025-10-12T16:07:08.991Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Morgen",
+    "divisao_silabica": "Mor-gen",
+    "transcricao_ipa": "ˈmɔʁɡn̩",
+    "traducao": "manhã"
+  },
+  {
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "guten",
+    "divisao_silabica": "gu-ten",
+    "transcricao_ipa": "ˈguːtn̩",
+    "traducao": "bom",
+    "conhecimento_id": "6f75c258-f44f-4932-aa9b-67da8e278287",
+    "data_hora": "2025-10-12T20:40:18.178165Z"
+  },
+  {
+    "conhecimento_id": "de1c0496-fb62-4c7c-b3f6-720b2755b47f",
+    "data_hora": "2025-10-13T11:37:18.027Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Tag",
+    "transcricao_ipa": "taːk",
+    "traducao": "dia",
+    "divisao_silabica": "Tak"
+  },
+  {
+    "conhecimento_id": "094e6387-3d71-4396-831d-f0ee7c010711",
+    "data_hora": "2025-10-13T11:50:58.068Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Abend",
+    "transcricao_ipa": "'aːbn̩t",
+    "traducao": "noite (do fim da tarde até a hora de dormir)",
+    "divisao_silabica": "a-bend"
+  },
+  {
+    "conhecimento_id": "b487ef33-6126-4071-a2a4-452ceb613c49",
+    "data_hora": "2025-10-13T12:01:17.293Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Nacht",
+    "transcricao_ipa": "naxt",
+    "traducao": "noite; madrugada",
+    "divisao_silabica": "Nacht"
+  },
+  {
+    "conhecimento_id": "00482e92-c172-4560-bb8c-ce6a9a4470cb",
+    "data_hora": "2025-10-13T12:14:08.333Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Programmierer",
+    "transcricao_ipa": "pʁogʁaˈmiːʁɐ",
+    "traducao": "programador",
+    "divisao_silabica": "Pro-gram-mie-rer"
+  },
+  {
+    "conhecimento_id": "8ba8ed8b-7d14-4fa3-839b-2b04ac913ab1",
+    "data_hora": "2025-10-13T12:38:54.818Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "fünf",
+    "transcricao_ipa": "fʏnf ",
+    "traducao": "cinco",
+    "divisao_silabica": "fünf"
+  },
+  {
+    "conhecimento_id": "e9ed6cf7-d03d-40e9-9992-08d5c1331a9d",
+    "data_hora": "2025-10-13T12:38:08.635Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "fünfzig",
+    "transcricao_ipa": "ˈfʏnft͡sɪç",
+    "traducao": "cinquenta",
+    "divisao_silabica": "fünf-zig"
+  },
+  {
+    "conhecimento_id": "11e6bcce-c699-4bf3-8fdd-faeff6790636",
+    "data_hora": "2025-10-13T12:39:12.262Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "sechs",
+    "transcricao_ipa": "zɛks",
+    "traducao": "seis",
+    "divisao_silabica": "sechs"
+  },
+  {
+    "conhecimento_id": "055fce47-8f37-4fbf-9988-23e4e12cbef6",
+    "data_hora": "2025-10-13T12:42:14.277Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "sieb",
+    "transcricao_ipa": "ziːp",
+    "traducao": "sete",
+    "divisao_silabica": "sieb"
+  },
+  {
+    "conhecimento_id": "78d08d2a-fd41-4da4-bb15-d67a02b1ddd2",
+    "data_hora": "2025-10-13T12:53:38.683Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Jahre",
+    "transcricao_ipa": "ˈjaːʁə",
+    "traducao": "anos (plural)",
+    "divisao_silabica": "Jah-re"
+  },
+  {
+    "conhecimento_id": "51da819f-bc5d-4abb-aabd-5da7272198c9",
+    "data_hora": "2025-10-13T12:56:13.138Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Jahr",
+    "transcricao_ipa": "jaːɐ̯",
+    "traducao": "ano",
+    "divisao_silabica": "Jahr"
+  },
+  {
+    "conhecimento_id": "d1b981b3-5dfb-48e5-9e3e-7063e90cd48f",
+    "data_hora": "2025-10-13T12:58:56.321Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "alt",
+    "transcricao_ipa": "alt",
+    "traducao": "antigo",
+    "divisao_silabica": "alt"
+  },
+  {
+    "conhecimento_id": "b7aaba11-993a-4ee1-8491-c024f63dd4cc",
+    "data_hora": "2025-10-13T13:07:27.826Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Kilo",
+    "transcricao_ipa": "ˈkiːlo",
+    "traducao": "quilo",
+    "divisao_silabica": "Ki-lo"
+  },
+  {
+    "conhecimento_id": "9b14cdde-8bd3-4cf4-8527-61dcdb731485",
+    "data_hora": "2025-10-13T13:11:43.165Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "heißen",
+    "transcricao_ipa": "ˈhai̯sn̩",
+    "traducao": "chamar-se",
+    "divisao_silabica": "hei-ßen"
+  },
+  {
+    "conhecimento_id": "9d8f6579-0be9-46f7-9aa9-06f1ad2f8a66",
+    "data_hora": "2025-10-16T17:56:24.594Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "sechsundfünfzig",
+    "transcricao_ipa": "ˈzɛksʊntˌfʏnft͡sɪç",
+    "traducao": "cinquenta e seis",
+    "divisao_silabica": "sechs-und-fünf-zig"
+  },
+  {
+    "conhecimento_id": "7bcb7d2f-3769-4322-9703-345cc6494e89",
+    "data_hora": "2025-10-16T18:04:47.540Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "vierundachtzig",
+    "transcricao_ipa": "ˈfiːɐ̯ʊntˌʔaxt͡sɪç",
+    "traducao": "oitenta e quatro",
+    "divisao_silabica": "vier-und-acht-zig"
+  },
+  {
+    "conhecimento_id": "b8ef5102-50c5-4849-abb0-b9c5e380f7ca",
+    "data_hora": "2025-10-16T18:11:06.866Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "vierundsiebzig",
+    "transcricao_ipa": "ˈfiːɐ̯ʊntˌziːpt͡sɪç",
+    "traducao": "setenta e quatro",
+    "divisao_silabica": "vier-und-sieb-zig"
+  },
+  {
+    "conhecimento_id": "cc622bce-41af-4644-9d59-baea92ba3276",
+    "data_hora": "2025-10-16T18:20:04.505Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "Meter",
+    "transcricao_ipa": "ˈmeːtɐ",
+    "traducao": "metro",
+    "divisao_silabica": "Me-ter"
+  },
+  {
+    "conhecimento_id": "f481f018-8caf-4147-8f6e-f9872c1adea6",
+    "data_hora": "2025-10-16T18:21:54.187Z",
+    "idioma": "alemao",
+    "tipo_conhecimento": "palavra",
+    "texto_original": "vier",
+    "transcricao_ipa": "fiːɐ̯",
+    "traducao": "quatro",
+    "divisao_silabica": "vier"
+  }
+]
